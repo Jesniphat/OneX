@@ -1,0 +1,147 @@
+@import "reset";
+@import "flaticon";
+@import "layout";
+@import "misc";
+@import "flex";
+
+@import "icon";
+@import "screen";
+@import "dialog";
+@import "toaster";
+
+@import "setting";
+@import "installment";
+
+
+@import "react-datepicker.min.scss";
+@import "idcard";
+@import "input-form";
+
+@import "flex-data-table";
+
+body {
+  background: #ECECEC;
+}
+
+#bodysignin {
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  overflow:hidden;
+}
+
+#content-panel-signin {
+  width: 900px;
+  height: 621px;
+  margin: auto;
+
+  background-color:#fff;
+  border-radius:8px;
+  box-shadow:0 0 8px rgba(0,0,0,1);
+  display:flex;
+  transition: all 0.5s;
+  #inner-content {
+    position: relative;
+    padding: 8px 8px 8px 8px;
+    flex-grow:1;
+    display:flex;
+    flex-direction:column;
+
+    .content-page {
+      display:flex;
+      flex-grow:1;
+      flex-direction:column;
+    }
+
+    .content-header {
+      flex-shrink:0;
+    }
+
+    .content-body {
+      margin-top:8px;
+      overflow-y:auto;
+      height:100px;
+      flex-grow:1;
+    }
+  }
+}
+.layout-panel {
+#signin-app {
+  $height: 300px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: $height;
+  margin-left: -(3 * $panelWidth);
+  margin-top: -($height / 2);
+  background-color: #FFF;
+  border-radius: 8px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.5);
+   .left-side {
+    &.default {
+      background-color:#1ABC9C;
+    }
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    position: relative;
+    .wrap {
+      $height1: 40px;
+      $height2: 32px;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      margin-top: - ($height1 + $height2) / 2;
+      .logo {
+        font-size:1.8em;
+        text-align: center;
+        height: $height1;
+        line-height: $height1;
+        span {
+          font-size: 0.8em;
+        }
+      }
+      .powered {
+        height: $height2;
+        line-height: $height2;
+        text-align: center;
+        a {
+          text-decoration: none;
+          color:#fff;
+        }
+      }
+    }
+   }
+  .content {
+    padding-top:32px;
+    padding-bottom:32px;
+  }
+  .title1 {
+    text-shadow: 0 0 0 red;
+  }
+}
+
+.signin-form {
+  .lockable {
+    position: relative;
+    &.lock {
+      -webkit-filter:grayscale(100%);
+      .lock {
+        display:block;
+      }
+    }
+    .lock {
+      display:none;
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      right:0;
+      background:rgba(0,0,0,0.05);
+      z-index:1000;
+    }
+  }
+}
+}

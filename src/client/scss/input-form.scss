@@ -1,0 +1,35 @@
+.layout-panel {
+.input-form {
+  ::-webkit-input-placeholder {
+    text-align:right;
+  }
+
+  .field {
+    padding: 0 8px;
+    margin:0 2px;
+    border-radius:2px;
+    background-color:#f8f8f8;
+    height:28px;
+    line-height:32px;
+  }
+
+  input[type=text] {
+    border:none;
+    border-bottom:1px dotted #666;
+    margin: 0 2px;
+    padding: 3px 2px 0 2px;
+    background-color:#f8f8f8;
+    color:blue;
+  }
+
+  input[type=radio] {
+    padding:0 4px;
+  }
+  input[type=radio] + label {
+    padding:0 4px 0 0;
+  }
+  input[type=radio]:checked + label {
+    color:blue;
+  }
+}
+}

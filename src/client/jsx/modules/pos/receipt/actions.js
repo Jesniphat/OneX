@@ -1,0 +1,23 @@
+module.exports = require('reflux').createActions({
+  'list': {children:['done', 'error']},
+  'export': {children:['done', 'error']},
+  'paymentOptionList': {children:['done', 'error']},
+  'facetList': {children:['done', 'error']},
+  'getById': {children:['done', 'error']},
+  'save': {children:['done', 'error']},
+  'facetEdit': {children:['done', 'error']},
+  'getPaymentTerm': {children:['done', 'error']},
+  'getContractList': {children:['done', 'error']},
+  'savePayment': {children:['done', 'error']},
+  'printReceipt': {children:['done', 'error']},
+  'getContractDetail': {children:['done', 'error']},
+  'deptList': {children:['done', 'error']},
+  'getHistoryPaymentTerm': {children:['done', 'error']},
+  'exportDept': {children:['done', 'error']},
+  'saveProduct': {children:['done', 'error']},
+  'getDataProduct': {children:['done', 'error']},
+  'getFinanceList': {children:['done', 'error']},
+  'voidPayment': {children:['done', 'error']},
+  'checkOndate': {children:['done', 'error']},
+  'checkCloseCashDaily': {children:['done', 'error']}  
+  });

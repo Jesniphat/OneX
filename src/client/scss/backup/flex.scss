@@ -1,0 +1,362 @@
+
+
+.flex-form {
+  $buttonBackgroundDefault: #0099cc;
+  $buttonTextDefault: #ffffff;
+  $focusColor: rgba($buttonBackgroundDefault, 0.75);
+  $validFocusColor: rgba(82, 168, 236, 0.8);
+  $validShadowColor: rgba(82, 168, 236, 0.6);
+  $invalidFocusColor: #e9322d;
+  $invalidShadowColor: #f8b9b7;
+  .field {
+    position:relative;
+    width: 100%;
+    height:32px;
+    z-index:100;
+    background-color:#fff;
+    // &:hover {
+    //   background-color:red;
+    // }
+    .label {
+      display:block;
+      position:absolute;
+      top:0;
+      right:32px;
+      height:32px;
+      line-height:32px;
+      color:#aaa;
+      z-index:-1;
+    }
+    .field-icon {
+      display:block;
+      position:absolute;
+      top:4px;
+      left:4px;
+      height:24px;
+      line-height:24px;
+      z-index:-1;
+      color:#333;
+    }
+    .input-text {
+      display:block;
+      border:1px solid #ccc;
+      border-radius:4px;
+      height:30px;
+      line-height:30px;
+      width:calc(100% - 64px - 2px);
+      padding: 0 32px 0 32px;
+//      text-shadow:0px 0px 1px rgba(0,0,0,0.2);
+      background-color:transparent;
+      &:focus {
+        outline:none;
+        &:valid {
+          border:1px solid $validFocusColor;
+          box-shadow:0 0 8px $validShadowColor;
+        }
+        &:invalid:focus {
+          border:1px solid $invalidFocusColor;
+          box-shadow:0 0 8px $invalidShadowColor;
+        }
+      }
+    }
+    .valid, .invalid {
+      position:absolute;
+      padding:0;
+      top:4px;
+      right:4px;
+      height:24px;
+      line-height:24px;
+      display:none;
+    }
+    .input-text:valid ~ .valid {
+      display:block;
+      color:green;
+    }
+    .input-text:invalid ~ .invalid {
+      display:block;
+      color:red;
+    }
+    .checkbox {
+      opacity:0;
+      ~ .checked, ~ .unchecked {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        height: 24px;
+        line-height: 24px;
+        z-index:1;
+      }
+      ~ .checked {
+        display:none;
+      }
+      &:checked ~ .checked {
+        display:block;
+      }
+      &:checked ~ .unchecked {
+        display:none;
+      }
+      ~ .label {
+        left: 0px;
+        right: 8px;
+        padding-left:32px;
+        border-radius: 4px;
+        cursor: pointer;
+        color:#333;
+        z-index:2;
+      }
+      &:focus ~ .label {
+        box-shadow:0 0 8px $focusColor;
+      }
+    }
+    .dropdown {
+      display:block;
+      border:1px solid #ccc;
+      border-radius:4px;
+      height:30px;
+      line-height:30px;
+      width:calc(100% - 2px);
+      padding: 0 32px 0 32px;
+//      text-shadow:0px 0px 1px rgba(0,0,0,0.2);
+      background-color:transparent;
+    }
+  }
+}
+
+.flex-button {
+  $buttonBackground: #ccc;
+  $buttonText: #000;
+  $focusColor: rgba($buttonBackground, 0.75);
+
+  $buttonBackgroundDefault: #0099cc;
+  $buttonTextDefault: #ffffff;
+  $focusColorDefault: rgba($buttonBackgroundDefault, 0.75);
+
+  border-top:1px solid lighten($buttonBackground,25);
+  border-bottom:1px solid darken($buttonBackground,5);
+  box-shadow: 0 0 0 1px darken($buttonBackground,10);
+  width:calc(100% - 2px);
+  text-align:left;
+  height:24px;
+  line-height:28px;
+  padding:2px 0;
+  margin:1px;
+  border-radius:4px;
+  background-color: $buttonBackground;
+  text-decoration:none;
+  cursor:pointer;
+  outline:none;
+  transition: all 0.5s;
+  &.default {
+    background-color: $buttonBackgroundDefault;
+    border-top:1px solid lighten($buttonBackgroundDefault,25);
+    border-bottom:1px solid darken($buttonBackgroundDefault,5);
+    box-shadow: 0 0 0 1px darken($buttonBackgroundDefault,10);
+    .icon-small {
+      color: $buttonTextDefault;
+    }
+    .label {
+      color: $buttonTextDefault;
+    }
+    &:hover, &:focus {
+      box-shadow: 0 0 0 1px darken($buttonBackgroundDefault,10),
+        0 0 8px 0 $focusColorDefault;
+    }
+  }
+  &.disabled {
+    -webkit-filter: grayscale(100%) opacity(75%);
+    cursor:default;
+  }
+  .icon-small {
+    display:block;
+    width: 32px;
+    height: 24px;
+    text-align: center;
+    color: $buttonText;
+    border-right:1px solid darken($buttonBackground,10);
+    flex-shrink:0;
+  }
+  .label {
+    flex-grow:1;
+    border-left:1px solid lighten($buttonBackground,25);
+    padding-right:8px;
+    text-align: center;
+    color: $buttonText;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  }
+  &:active {
+    border-top:1px solid $buttonBackground;
+    border-bottom:1px solid $buttonBackground;
+  }
+  &:hover, &:focus {
+    box-shadow: 0 0 0 1px darken($buttonBackground,10),
+      0 0 8px 0 $focusColor;
+  }
+}
+
+.flex-grid {
+  $headerBackground: #fff;
+  $selectedHeaderBackground: #e5e5e5;
+  $hoverHeaderBackground: #f2f2f2;
+  $hoverBackground: #daf0fa;
+  $hoverMainBackground: darken($hoverBackground,10);
+  $selectedBackground: #6ac4ea;
+  $hoverSelectedBackground: lighten($selectedBackground, 10);
+  $selectedMainBackground: darken($selectedBackground, 10);
+  $hoverSelectedMainBackground: darken($selectedMainBackground, 5);
+  .header {
+    padding-right:8px;
+  }
+  .body {
+    overflow-y:scroll;
+  }
+  .footer {
+    background-color: #f8f8f8;
+    height:24px;
+    line-height:24px;
+    padding:1px 7px;
+    border:1px solid #eee;
+    .pageNumber {
+      padding: 0 8px 0 0;
+      select {
+        margin: 0 8px;
+      }
+    }
+    .rowNumber {
+      padding: 0 8px 0 0;
+    }
+    .perPage {
+      select {
+        margin: 0 8px;
+      }
+    }
+  }
+  table {
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout: fixed;
+    thead {
+      line-height:24px;
+      height:24px;
+      tr {
+        &.searchRow td {
+          padding:0px 1px 0 1px;
+          input {
+            width: calc(100% - 6px);
+            border: 1px solid #eee;
+            height: 24px;
+            line-height:24px;
+            padding: 0 2px;
+          }
+          .lov {
+            width: 100%;
+            border: 1px solid #eee;
+            height: 24px;
+            line-height:24px;
+            padding: 0 2px;
+          }
+          .actions a {
+            cursor:pointer;
+          }
+        }
+        th {
+          padding:1px 4px 0 4px;
+          border-bottom:3px solid #ccc;
+          text-align:left;
+          background-color: $headerBackground;
+          cursor:pointer;
+          .text {
+            flex-grow:1;
+            @include ellipsis();
+            padding:0 4px;
+          }
+          .sort-icon {
+            display:none;
+            width:24px;
+            height:24px;
+          }
+          &.sorted {
+            background-color: $selectedHeaderBackground;
+            .sort-icon {
+              display:block;
+            }
+          }
+          &:hover {
+            background-color: $hoverHeaderBackground;
+          }
+          &.center {
+            text-align:center;
+          }
+          .chk {
+            height:24px;
+            font-weight:normal;
+            color:#000;
+          }
+        }
+      }
+    }
+    tbody {
+      tr {
+        &:hover {
+          background-color: $hoverBackground;
+          .sorted {
+            background-color: $hoverMainBackground;
+          }
+        }
+        td {
+          border-bottom: 1px solid #fff;
+          padding: 2px 4px 1px 4px;
+          height:24px;
+          line-height:24px;
+          @include ellipsis();
+          &.sorted {
+            background-color: #e1f3fb;
+          }
+
+        }
+
+        &.selected {
+          background-color: $selectedBackground;
+          color:#fff;
+          .sorted {
+            background-color: $selectedMainBackground;
+          }
+          .flex-icon {
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+}
+.flex-tab {
+  display:flex;
+  background-color:rgba(240,240,240,0.8);
+  .tab {
+    text-decoration: none;
+    display:flex;
+    height:24px;
+    padding:4px 16px 4px 16px;
+    color:#000;
+    &.active {
+      padding-bottom: 2px;
+      border-bottom:2px solid red;
+    }
+    .icon {
+      flex-shrink:0;
+    }
+    .text {
+      flex-grow: 1;
+      height:24px;
+      line-height:24px;
+      padding-left:8px;
+    }
+  }
+}
+.flex-icon {
+  text-decoration:none;
+  color:#000;
+  height:24px;
+  line-height:24px;
+  display:block;
+}

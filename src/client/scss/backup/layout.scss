@@ -1,0 +1,143 @@
+$padding: 8px;
+$boxWidth: 80px;
+$panelPadding: $padding;
+$panelWidth: $boxWidth + 2 * $panelPadding;
+$mainIconWidth: 32px + 2 * $panelPadding;
+$totalWidth: 12 * $panelWidth + $mainIconWidth;
+
+$panelTopHeight: 40px;
+$panelActionHeight: 40px;
+$panelMenuWidth: 2 * $panelWidth + $mainIconWidth;
+$panelInfoWidth: 2 * $panelWidth;
+
+
+
+$color1Primary: #77BBDD;
+$color2Primary: adjust_hue($color1Primary, 60);
+$color3Primary: adjust_hue($color1Primary, 120);
+$color4Primary: adjust_hue($color1Primary, 180);
+$color5Primary: adjust_hue($color1Primary, 240);
+$color6Primary: adjust_hue($color1Primary, 300);
+
+$color1Secondary: darken($color1Primary, 10);
+$color2Secondary: darken($color2Primary, 10);
+$color3Secondary: darken($color3Primary, 10);
+$color4Secondary: darken($color4Primary, 10);
+$color5Secondary: darken($color5Primary, 10);
+$color6Secondary: darken($color6Primary, 10);
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #eee;
+}
+
+////////////////////////////////////////////////////////////
+// PANEL
+////////////////////////////////////////////////////////////
+
+.flex {
+  display: flex;
+}
+
+.panel {
+  min-height: 32px;
+  padding: ($panelPadding / 2) $panelPadding;
+}
+
+.no-padding {
+  padding:0;
+}
+
+.panel1 {
+  @extend .panel;
+  width: $boxWidth;
+}
+
+.panel2 {
+  @extend .panel;
+  width: 2 * $panelWidth - 2 * $panelPadding;
+}
+
+.panel3 {
+  @extend .panel;
+  width: 3 * $panelWidth - 2 * $panelPadding;
+}
+
+.panel4 {
+  @extend .panel;
+  width: 4 * $panelWidth - 2 * $panelPadding;
+}
+
+.panel5 {
+  @extend .panel;
+  width: 5 * $panelWidth - 2 * $panelPadding;
+}
+
+.panel6 {
+  @extend .panel;
+  width: 6 * $panelWidth - 2 * $panelPadding;
+}
+
+.panel7 {
+  @extend .panel;
+  width: 7 * $panelWidth - 2 * $panelPadding;
+}
+
+.panel8 {
+  @extend .panel;
+  width: 8 * $panelWidth - 2 * $panelPadding;
+}
+.panel9 {
+  @extend .panel;
+  width: 9 * $panelWidth - 2 * $panelPadding;
+}
+.panel10 {
+  @extend .panel;
+  width: 10 * $panelWidth - 2 * $panelPadding;
+}
+
+.box {
+  min-height: 32px;
+}
+.box1 {
+  @extend .box;
+  width: $panelWidth;
+}
+.box2 {
+  @extend .box;
+  width: 2 * $panelWidth;
+}
+.box3 {
+  @extend .box;
+  width: 3 * $panelWidth;
+}
+.box4 {
+  @extend .box;
+  width: 4 * $panelWidth;
+}
+.box5 {
+  @extend .box;
+  width: 5 * $panelWidth;
+}
+.box6 {
+  @extend .box;
+  width: 6 * $panelWidth;
+}
+.box7 {
+  @extend .box;
+  width: 7 * $panelWidth;
+}
+.box8 {
+  @extend .box;
+  width: 8 * $panelWidth;
+}
+.box9 {
+  @extend .box;
+  width: 9 * $panelWidth;
+}
+.box10 {
+  @extend .box;
+  width: 10 * $panelWidth;
+}

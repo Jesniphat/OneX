@@ -1,0 +1,136 @@
+.layout-panel {
+.nationid-reader {
+  position:relative;
+  width: 368px;
+  height:265px;
+  margin: 0 auto;
+  font-family: "Boon-0.6";
+  .nationid-card {
+    background: transparent url(../img/nationid.png) 0 0 no-repeat;
+    width: 368px;
+    height:265px;
+    position:relative;
+    border-radius:14px;
+    box-shadow:2px 2px 8px rgba(0, 0, 0, 0.5);
+    cursor:pointer;
+    &.inactive {
+      -webkit-filter:grayscale(100%);
+    }
+    > div, > img {
+      position:absolute;
+  //    background-color:rgba(255,255,255,0.1);
+      color:#000;
+      height:24px;
+      line-height:32px;
+    }
+    .code {
+      top:26px;
+      left:160px;
+      width:200px;
+      font-weight:bold;
+      font-size:20px;
+    }
+    .name-th {
+      top:53px;
+      left:86px;
+      width:274px;
+      height:28px;
+      font-weight:bold;
+      font-size:20px;
+    }
+    .name-en {
+      top:75px;
+      left:140px;
+      width:220px;
+      font-weight:bold;
+    }
+    .name2-en {
+      top:93px;
+      left:160px;
+      width:200px;
+    }
+    .birth-th {
+      top:112px;
+      left:155px;
+      width:115px;
+    }
+    .birth-en {
+      top:130px;
+      left:180px;
+      width:90px;
+      font-size:14px;
+    }
+    .addr1 {
+      top:170px;
+      left:55px;
+      width:215px;
+      font-size:12px;
+    }
+    .addr2 {
+      top:187px;
+      left:35px;
+      width:235px;
+      font-size:12px;
+    }
+    .issue_date_th {
+      top:202px;
+      left:35px;
+      width:80px;
+      font-size:11px;
+    }
+    .issue_date_en {
+      top:226px;
+      left:35px;
+      width:80px;
+      font-size:11px;
+    }
+    .expiry_date_th {
+      top:202px;
+      left:202px;
+      width:80px;
+      font-size:11px;
+    }
+    .expiry_date_en {
+      top:226px;
+      left:202px;
+      width:80px;
+      font-size:11px;
+    }
+    .photo {
+      top:125px;
+      left:272px;
+      width:85px;
+      height:110px;
+      z-index:90;
+    }
+    .photoLoading {
+      top:160px; // 125 + 35
+      left:292px; // 272 + 20
+      width:40px; // 86 - 40 = 46/2 = 23
+      height:40px; // 110 - 40 = 70/2 = 35
+      z-index:100;
+//      display:none;
+      &.loading {
+        display:block;
+      }
+    }
+  }
+  .ready-to-read {
+    position:absolute;
+    width:300px;
+    height:40px;
+    line-height:48px;
+    font-size:28px;
+    text-align:center;
+    top:50%;
+    left:50%;
+    margin-left:-150px;
+    margin-top: -20px;
+    background-color:rgba(255,255,255,0.95);
+    color:red;
+    font-weight:bold;
+    cursor:pointer;
+    border-radius:4px;
+  }
+}
+}

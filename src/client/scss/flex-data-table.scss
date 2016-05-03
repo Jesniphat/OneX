@@ -1,0 +1,177 @@
+.layout-panel {
+.flex-data-table {
+  $headerBackground: #fff;
+  $selectedHeaderBackground: #e5e5e5;
+  $hoverHeaderBackground: #f2f2f2;
+  $hoverBackground: #daf0fa;
+  $hoverMainBackground: darken($hoverBackground,10);
+  $selectedBackground: #6ac4ea;
+  $hoverSelectedBackground: lighten($selectedBackground, 10);
+  $selectedMainBackground: darken($selectedBackground, 10);
+  $hoverSelectedMainBackground: darken($selectedMainBackground, 5);
+  .header {
+    padding-right:8px;
+    th:not(:last-child) {
+      border-right: 1px solid #eee;
+    }
+  }
+  .footer {
+    padding-right:8px;
+    tr {
+      td {
+        height:24px;
+        line-height:24px;
+        padding: 2px 3px 1px 4px;
+        border-right: 1px solid #eee;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+      td:last-child {
+        padding-right:4px;
+        border-right: none;
+      }
+    }
+  }
+  .body {
+    overflow-y:scroll;
+    position:relative;
+    tr {
+      td {
+        border-bottom: 1px solid #eee;
+      }
+      td:not(:last-child) {
+        border-right: 1px solid #eee;
+      }
+      &:nth-child(even) {
+        background-color:#f8f8f8;
+      }
+    }
+    .load-status {
+      position:absolute;
+      top:32px;
+      left:50%;
+      width:200px;
+      margin-left:-100px;
+      text-align:center;
+      opacity:0;
+      transition:all 0.5s;
+      z-index:101;
+      background-color:rgba(255,255,255,0.9);
+      border:1px solid #999;
+    }
+
+    &.loading {
+      .load-status {
+        opacity:100;
+      }
+    }
+  }
+
+  table {
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout: fixed;
+    thead {
+      line-height:26px;
+      height:26px;
+      tr {
+        &.inputRow td {
+          padding:1px 1px 1px 1px;
+          input {
+            width: calc(100% - 6px);
+            border: 1px solid #eee;
+            height: 28px;
+            line-height:32px;
+            padding: 0 2px;
+            &[readonly] {
+              background-color: #f8f8f8;
+            }
+          }
+          .lov {
+            width: 100%;
+            border: 1px solid #eee;
+            height: 30px;
+            line-height:32px;
+            padding: 0 2px;
+          }
+          .actions a {
+            cursor:pointer;
+          }
+        }
+        th {
+          padding:4px 4px 0 4px;
+          border-bottom:2px solid #ccc;
+          text-align:left;
+          background-color: $headerBackground;
+          cursor:pointer;
+          .text {
+            flex-grow:1;
+            @include ellipsis();
+            padding:0 4px;
+          }
+          .sort-icon {
+            display:none;
+            width:24px;
+            height:24px;
+          }
+          &.sorted {
+            background-color: $selectedHeaderBackground;
+            .sort-icon {
+              display:block;
+            }
+          }
+          &:hover {
+            background-color: $hoverHeaderBackground;
+          }
+          &.center {
+            text-align:center;
+          }
+          .chk {
+            height:24px;
+            font-weight:normal;
+            color:#000;
+          }
+        }
+      }
+    }
+    tbody {
+      tr {
+        &:hover {
+          background-color: $hoverBackground;
+          .sorted {
+            background-color: $hoverMainBackground;
+          }
+        }
+        td {
+          border-bottom: 1px solid #fff;
+          padding: 2px 4px 1px 4px;
+          height:28px;
+          line-height:28px;
+          @include ellipsis();
+          &.sorted {
+            background-color: #e1f3fb;
+          }
+          div.multiline {
+            line-height:20px;
+          }
+        }
+
+        &.selected {
+          background-color: $selectedBackground;
+          color:#fff;
+          .sorted {
+            background-color: $selectedMainBackground;
+          }
+          .flex-icon {
+            color: #fff;
+          }
+        }
+        .datepicker__input {
+          width:100%;
+        }
+      }
+    }
+  }
+}
+}

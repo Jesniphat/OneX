@@ -1,0 +1,165 @@
+.layout-panel {
+////////////////////////////////////////////////////////////
+// PANEL
+////////////////////////////////////////////////////////////
+$padding: 8px;
+$innerWidth: 80px;
+$panelWidth: $innerWidth + 2 * $padding;
+$mainIconWidth: 32px + 2 * $padding;
+$totalWidth: 12 * $panelWidth + $mainIconWidth;
+
+$panelTopHeight: 40px;
+$panelActionHeight: 40px;
+$panelMenuWidth: 2 * $panelWidth + $mainIconWidth;
+$panelInfoWidth: 2 * $panelWidth;
+
+  .flex {
+    display: flex;
+  }
+  .flex-v {
+    display: flex;
+    flex-direction: column;
+  }
+  .none {
+    display: none;
+  }
+  .can-grow {
+    flex-grow:1;
+  }
+  .no-shrink {
+    flex-shrink:0;
+  }
+
+  .panel {
+    min-height: 18px;
+    padding: ($padding / 4) $padding;
+  }
+  .panel1 {
+    @extend .panel;
+    width: $innerWidth;
+  }
+  .panel2 {
+    @extend .panel;
+    width: 2 * $panelWidth - 2 * $padding;
+    .title {
+      font-size:16px;
+      background-color:#eee;
+      height:28px;
+      line-height:28px;
+      border-radius:4px;
+      padding:2px 8px;
+    }
+  }
+  .panel3 {
+    @extend .panel;
+    width: 3 * $panelWidth - 2 * $padding;
+  }
+  .panel4 {
+    @extend .panel;
+    width: 4 * $panelWidth - 2 * $padding;
+  }
+  .panel5 {
+    @extend .panel;
+    width: 5 * $panelWidth - 2 * $padding;
+  }
+  .panel6 {
+    @extend .panel;
+    width: 6 * $panelWidth - 2 * $padding;
+  }
+  .panel7 {
+    @extend .panel;
+    width: 7 * $panelWidth - 2 * $padding;
+  }
+  .panel8 {
+    @extend .panel;
+    width: 8 * $panelWidth - 2 * $padding;
+  }
+  .panel9 {
+    @extend .panel;
+    width: 9 * $panelWidth - 2 * $padding;
+  }
+  .panel10 {
+    @extend .panel;
+    width: 10 * $panelWidth - 2 * $padding;
+  }
+  .panel11 {
+    @extend .panel;
+    width: 11 * $panelWidth - 2 * $padding;
+  }
+
+  .panel12 {
+    @extend .panel;
+    width: 12 * $panelWidth - 2 * $padding;
+    margin-left: -2 * $panelWidth  + $panelWidth / 4;
+    background-color:#fff;
+  }
+  .panelf {
+    @extend .panel;
+  }
+  .panelf2 {
+    @extend .panel;
+    padding-right:0;
+  }
+  .box {
+    min-height: 24px;
+  }
+  .box1 {
+    @extend .box;
+    width: $panelWidth;
+  }
+  .box2 {
+    @extend .box;
+    width: 2 * $panelWidth;
+  }
+  .box3 {
+    @extend .box;
+    width: 3 * $panelWidth;
+  }
+  .box4 {
+    @extend .box;
+    width: 4 * $panelWidth;
+  }
+  .box5 {
+    @extend .box;
+    width: 5 * $panelWidth;
+  }
+  .box6 {
+    @extend .box;
+    width: 6 * $panelWidth;
+  }
+  .box7 {
+    @extend .box;
+    width: 7 * $panelWidth;
+  }
+  .box8 {
+    @extend .box;
+    width: 8 * $panelWidth;
+  }
+  .box9 {
+    @extend .box;
+    width: 9 * $panelWidth;
+  }
+  .box10 {
+    @extend .box;
+    width: 10 * $panelWidth;
+  }
+  .box11 {
+    @extend .box;
+    width: 11 * $panelWidth;
+  }
+  .box12 {
+    @extend .box;
+    width: 12 * $panelWidth;
+    margin-left: -2 * $panelWidth + $panelWidth / 4;
+    background-color:#fff;
+  }
+  .box13 {
+    @extend .box;
+    width: 13 * $panelWidth;
+    margin-left: -2 * $panelWidth + $panelWidth / 3;
+    background-color:#fff;
+  }
+  .boxf {
+    @extend .box;
+  }
+}

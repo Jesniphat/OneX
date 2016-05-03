@@ -1,0 +1,35 @@
+/*.layout-panel .flex-form .field.noicon .input-text {
+    padding-left: 4px !important;
+    width: calc(100% - 4px - 33px - 1px) !important;
+}*/
+.gps {
+	background-image: url("img/gps.png");
+}
+
+.pickUpIcon {
+	background-image: url("img/pickUp.png");
+}
+
+.invoiceIcon {
+	background-image: url("img/invoiceIcon.png");
+}
+
+.dateIcon {
+	background-image: url("img/dateIcon.png");
+}
+
+.in-box-1 {
+  background-image: url("img/Piece1.png");
+}
+
+.in-box-2 {
+  background-image: url("img/scale1.png");
+}
+
+.boxIcon {
+  background-image: url("img/TruckBlack.png");
+}
+
+.kg {
+    background-image: url("img/KG.png");
+}

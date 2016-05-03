@@ -1,0 +1,77 @@
+@import "reset";
+@import "flaticon";
+@import "layout";
+@import "misc";
+@import "flex";
+
+#signin-app {
+  $height: 300px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: $height;
+  margin-left: -(3 * $panelWidth);
+  margin-top: -($height / 2);
+  background-color:#fff;
+  border-radius: 8px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.5);
+  .left-side {
+    background-color:$color1Primary;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    position: relative;
+    .wrap {
+      $height1: 40px;
+      $height2: 32px;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      margin-top: - ($height1 + $height2) / 2;
+      .logo {
+        font-size:1.8em;
+        text-align: center;
+        height: $height1;
+        line-height: $height1;
+      }
+      .powered {
+        height: $height2;
+        line-height: $height2;
+        text-align: center;
+        a {
+          text-decoration: none;
+          color:#fff;
+        }
+      }
+    }
+  }
+  .content {
+    padding-top:32px;
+    padding-bottom:32px;
+  }
+  .title1 {
+    text-shadow: 0 0 0 red;
+  }
+}
+
+.signin-form {
+  .lockable {
+    position: relative;
+    &.lock {
+      -webkit-filter:grayscale(100%);
+      .lock {
+        display:block;
+      }
+    }
+    .lock {
+      display:none;
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      right:0;
+      background:rgba(0,0,0,0.05);
+      z-index:1000;
+    }
+  }
+}

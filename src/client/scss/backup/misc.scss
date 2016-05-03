@@ -1,0 +1,78 @@
+
+////////////////////////////////////////////////////////////
+// HELPER
+////////////////////////////////////////////////////////////
+
+.ellipsis {
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+
+@mixin ellipsis() {
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+
+@-webkit-keyframes aniRotate {
+  0% {
+    transform:rotate(0deg);
+  }
+  100% {
+    transform:rotate(-360deg);
+  }
+}
+
+@-webkit-keyframes aniFadeout {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+
+.scroll {
+  overflow:hidden;
+}
+.scroll:hover {
+  overflow-y:auto;
+}
+
+.rotate {
+  -webkit-animation: 1s aniRotate infinite;
+}
+.fadeout {
+  -webkit-animation: 1s aniFadeout;
+}
+
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+
+.large::before {
+  width:48px;
+  height:48px;
+  line-height:48px;
+  font-size:48px;
+}
+.normal::before {
+  width:32px;
+  height:32px;
+  line-height:32px;
+  font-size:32px;
+}
+.tiny::before {
+  width:16px;
+  height:16px;
+  line-height:16px;
+  font-size:16px;
+}

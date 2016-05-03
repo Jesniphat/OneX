@@ -1,0 +1,346 @@
+<!doctype html>
+<html>
+<head>
+  <title></title>
+  <style>
+/* reset */
+@font-face {
+  src: url("css/fonts/boon-300.woff") format("woff");
+  font-family: "Boon-0.6";
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  src: url("css/fonts/boon-300-oblique.woff") format("woff");
+  font-family: "Boon-0.6";
+  font-style: italic;
+  font-weight: normal;
+}
+
+@font-face {
+  src: url("css/fonts/boon-400.woff") format("woff");
+  font-family: "Boon-0.6";
+  font-style: normal;
+  font-weight: bold;
+}
+
+@font-face {
+  src: url("css/fonts/boon-400-oblique.woff") format("woff");
+  font-family: "Boon-0.6";
+  font-style: italic;
+  font-weight: bold;
+}
+
+@font-face {
+  src: url("css/fonts/EDPenSook-NormalTone.ttf");
+  font-family: "EDPenSook";
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  src: url("css/fonts/EDPenSook-NormalToneBold.ttf");
+  font-family: "EDPenSook";
+  font-style: normal;
+  font-weight: bold;
+}
+
+/* Let's get this party started */
+::-webkit-scrollbar {
+  width: 8px;
+  transition: all 0.5s;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  /*
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+  */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  /*border-radius: 10px;*/
+  background: rgba(0,0,0,0.2);
+  width:2px;
+/*  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); */
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255,0,0,0.4);
+}
+
+body, table, input, select, textarea {
+  font-family: "Boon-0.6";
+  font-size:12pt;
+  line-height:24px;
+  height:24px;
+}
+body {
+  margin:0;
+  padding:0;
+}
+ul, li {
+  margin:0;
+  padding:0;
+  list-style-type:none;
+}
+a {
+  text-decoration:none;
+}
+.heading {
+/*  font-family: "EDPenSook";*/
+}
+.icon-small {
+  width:24px;
+  height:24px;
+}
+
+#body {
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  background: #fff url(img/bg.png) 0 0 repeat;
+}
+#top-panel {
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:40px;
+  background-color:rgba(255, 255, 255, 0.75);
+  display:flex;
+  min-width:1232px;
+}
+#top-panel #logo {
+  width:240px;
+  background-color:#cde;
+  flex-shrink:0;
+}
+#top-panel #module-menu {
+  width:192px;
+  background-color:#cff;
+  flex-shrink:0;
+}
+#top-panel #spacer {
+  background-color:#ccc;
+  flex-grow:1;
+}
+#top-panel #sys-tray {
+  width:576px;
+  background-color:#ccf;
+  flex-shrink:0;
+  display:flex;
+  justify-content:flex-end;
+}
+#top-panel #user-profile {
+  width:216px;
+  background-color:#fcc;
+  flex-shrink:0;
+}
+#menu-panel {
+  position:absolute;
+  top:40px;
+  left:0px;
+  bottom:0px;
+  width:240px;
+  background-color:rgba(153,0,102,0.75);
+  color:#fff;
+}
+#content-panel {
+  position:absolute;
+  top:48px;
+  left:256px;
+  right:16px;
+  bottom:8px;
+  background-color:#fff;
+  border-radius:8px;
+  box-shadow:0 0 8px rgba(0,0,0,1);
+  display:flex;
+  transition: all 0.5s;
+}
+#inner-content {
+  position: relative;
+  padding: 8px 8px 8px 16px;
+  flex-grow:1;
+  display:flex;
+  flex-direction:column;
+}
+#content-header {
+  flex-shrink:0;
+  background-color:#ffc;
+  font-size:20pt;
+  font-weight:bold;
+}
+#content {
+  overflow-y:auto;
+  flex-grow:1;
+}
+#info-panel {
+  order:-1;
+  width:0;
+  transition: all 0.5s;
+  flex-shrink:0;
+}
+
+#inner-info {
+  opacity:0;
+  transition: all 0.5s;
+}
+
+#menu-panel {
+  padding: 24px 0;
+  display:flex;
+  flex-direction:column;
+}
+#menu-panel .top {
+  flex-grow:1;
+  overflow-y:auto;
+}
+#menu-panel > ul > li {
+}
+#menu-panel > ul > li > a{
+  display:flex;
+  height:48px;
+  color:#fff;
+}
+#menu-panel > ul > li > a:hover{
+  display:flex;
+  height:48px;
+  background-color:rgba(140,0,98,0.75);
+  color:#fff;
+}
+#menu-panel > ul > li > a .icon {
+  padding:8px;
+  transition: all 0.5s;
+}
+#menu-panel > ul > li > a .text {
+  padding:4px 8px 4px 0px;
+}
+#menu-panel > ul > li > a .spacer {
+  width:16px;
+  height:48px;
+  opacity:0;
+/*  transition:opacity 1s;*/
+}
+#menu-panel > ul > li > a.active {
+  background-color:#fff;
+  color:#333;
+}
+#menu-panel > ul > li > a.active:hover {
+  color:#fff;
+  background-color:rgba(140,0,98,0.75);
+}
+#menu-panel .bottom {
+  flex-shrink:0;
+}
+.extend #content-panel {
+  left:48px;
+}
+.extend #info-panel {
+  display:block;
+  width:168px;
+  padding: 8px 7px 8px 16px;
+  border-right:1px dashed #ccc;
+}
+.extend #inner-info {
+  opacity:100;
+  background-color:#ffc;
+}
+.extend #menu-panel .active .icon {
+  background-color:#fff;
+  box-shadow: 0 0 16px #000;
+  z-index:100;
+}
+.extend #menu-panel .active .spacer {
+  background-color:#fff;
+  width:16px;
+  height:64px;
+  margin-top:-8px;
+  z-index:101;
+  opacity:100;
+  -webkit-animation: 1s aniSpacer;
+}
+@-webkit-keyframes aniSpacer {
+  0% {
+    margin-top:0px;
+    height:48px;
+    opacity:0;
+  }
+  50% {
+    margin-top:0px;
+    height:48px;
+    opacity:50;
+  }
+  100% {
+    margin-top:-8px;
+    height:64px;
+    opacity:100;
+  }
+}
+  </style>
+  <script src="js/jquery.min.js"></script>
+</head>
+<body>
+  <div id="body">
+    <div id="top-panel">
+      <div id="logo">LOGO</div>
+      <div id="module-menu">
+        <img src="img/icons/settings49.png" class="icon-small"> Module Menu
+      </div>
+      <div id="spacer">
+      </div>
+      <div id="sys-tray">
+        <div><select><option value="">HQ สำนักงานใหญ่</option></select></div>
+        <div><select><option value="">5 พ.ค. 58</option></select></div>
+        <div><img src="img/icons/refresh55.png" width="24"/></div>
+      </div>
+      <div id="user-profile">
+        User Profile
+      </div>
+    </div>
+    <div id="menu-panel">
+      <ul class="top">
+        <li><a href=""><img src="img/icons/two375.png" width="32" height="32" class="icon"/><div class="spacer"></div><div class="text">ภาพรวม</div></a></li>
+        <li><a href="" class="active"><img src="img/icons/two375.png" width="32" height="32" class="icon"/><div class="spacer"></div><div class="text">ภาพรวม</div></a></li>
+        <li><a href=""><img src="img/icons/two375.png" width="32" height="32" class="icon"/><div class="spacer"></div><div class="text">ภาพรวม</div></a></li>
+        <li><a href=""><img src="img/icons/two375.png" width="32" height="32" class="icon"/><div class="spacer"></div><div class="text">ภาพรวม</div></a></li>
+      </ul>
+      <ul class="bottom">
+        <li><a href=""><img src="img/icons/headset12.png" width="32" height="32" class="icon"/><div class="spacer"></div><div class="text">ขอความช่วยเหลือ</div></a></li>
+        <li><a href=""><img src="img/icons/exit13.png" width="32" height="32" class="icon"/><div class="spacer"></div><div class="text">ออกจากระบบ</div></a></li>
+      </ul>
+    </div>
+    <div id="content-panel">
+      <div id="inner-content">
+        <div id="content-header" class="heading">
+          หัวข้อเรื่อง
+        </div>
+        <div id="content">
+Content<br/>Content<br/>Content<br/>
+<p>บ็อกซ์แหม็บ ชีสไรเฟิลซีรีส์วิภัชภาคแอสเตอร์ ภควัทคีตาธรรมาภิบาลตะหงิดสปา แพนดากาญจน์คอลัมน์ฮอตดอก สหัสวรรษ ดีกรีเซลส์เฟอร์นิเจอร์คลับเฟรชชี่ แซวอีสต์ แฟนซีล็อต โมหจริต คาเฟ่โหงว ภควัมปติเกรย์ซิมไคลแม็กซ์ ไชน่า สตรอเบอรีอาว์สัมนาไฮเวย์ ฮอตคาเฟ่เวิลด์ติวเตอร์ ราชานุญาตโอวัลตินออโต้ มอคค่าโฮสเตสไฮแจ็ค</p>
+<p>สามแยกภูมิทัศน์คาร์บริกร อพาร์ตเมนท์นรีแพทย์เลคเชอร์ อัลไซเมอร์แครอทออทิสติกเพทนาการเพลย์บอย พอเพียงโทรโข่ง กฤษณ์ซากุระคาร์โก้จิตเภท อุปนายกรีโมทลีเมอร์ สลัมเพลย์บอยดีมานด์ เลิฟเอาต์อัลมอนด์แคมเปญแจ๊กพอต แฮมเบอร์เกอร์คลับโปสเตอร์เจลสเกตช์ วอล์ก ม็อบเป่ายิ้งฉุบคำตอบโฮลวีต สกายริกเตอร์ ยูวีแพ็คช็อปราเม็ง เซนเซอร์คลิป ยูวี ป๋อหลอ</p>
+<p>เจ็ตอันเดอร์ เกรย์แฮมเบอร์เกอร์ไฮเทค พงษ์สตรอว์เบอร์รีแชมพู คอลัมน์ฮ็อตด็อก ซีเนียร์สตรอว์เบอร์รีเที่ยงวัน อพาร์ทเมนต์ สเตชั่น ออร์เดอร์ไลน์ แชมเปี้ยนพฤหัสทัวร์แอสเตอร์ฮิปฮอป เปโซเยนซีอีโอมั้ง ฮัมมายาคติเสกสรรค์คอลัมนิสต์คาร์ เอ็นทรานซ์พาร์ตเนอร์ชาร์จนิว ซูชิชัตเตอร์บลูเบอร์รีธุรกรรม ตนเองละตินมาร์คอัลบัมฮัลโหล สามแยกบูติกเซ็กส์ว้อยภูมิทัศน์ พาร์ตเนอร์</p>
+<p>สตรอเบอรีวอล์กโอเพ่นบ๊อกซ์ ฮัลโหลสตรอเบอรี ไฟต์ไวกิ้งเยอบีราเกมส์ หล่อฮังก้วยพาสตาเปราะบาง ริคเตอร์สตีลทอมนางแบบ อุปการคุณกาญจนาภิเษกบอดี้บ๋อยเป็นไง เอ็นทรานซ์โมจิโนติส บาบูน บัสโค้ช แครกเกอร์ชาร์จคอมเมนต์แมกกาซีนบูติค คีตกวีเวิร์กอึ๋ม สวีทแคทวอล์คสุริยยาตรฮิปฮอป กิมจิโอเวอร์จิตเภท พาร์รายชื่ออิออนกฤษณ์แตงกวา ฮัมเครปไคลแมกซ์ แจม</p>
+<p>แฮปปี้แคนยอนอินดอร์ว่ะแพกเกจ สวีท โค้ช สติ๊กเกอร์ โค้ชยาวี เยนอีสต์ไพลิน คอรัปชันเซ็นเซอร์ สหัชญาณ อพาร์ตเมนต์ ฟลุค คอลัมนิสต์เช็งเม้งแบคโฮแกรนด์ สตาร์ทภารตะงั้น บัส นู้ดสลัม เจ๊าะแจ๊ะบ๊อกซ์ มายาคติ</p>
+Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>Content<br/>
+        </div>
+      </div>
+      <div id="info-panel">
+        <div id="inner-info">
+          INFO
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  $(function() {
+    $('#logo').on('click', function() {
+      $('#body').toggleClass('extend');
+    });
+  });
+  </script>
+</body>

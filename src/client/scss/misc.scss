@@ -1,0 +1,180 @@
+@mixin ellipsis() {
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+
+.dimmer {
+  &.app{
+    z-index: 1001
+  }
+}
+.layout-panel {
+////////////////////////////////////////////////////////////
+// HELPER
+////////////////////////////////////////////////////////////
+
+.ellipsis {
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+}
+
+
+@-webkit-keyframes aniRotate {
+  0% {
+    transform:rotate(0deg);
+  }
+  100% {
+    transform:rotate(-360deg);
+  }
+}
+@-webkit-keyframes aniRotateY {
+  0% {
+    transform:rotateY(0deg);
+  }
+  100% {
+    transform:rotateY(360deg);
+  }
+}
+@-webkit-keyframes aniZooming {
+  0% {
+    transform:scale(0.8);
+  }
+  33% {
+    transform:scale(1.0);
+  }
+  66% {
+    transform:scale(0.8);
+  }
+  100% {
+    transform:scale(1.0);
+  }
+}
+@-webkit-keyframes aniFadeout {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+
+.scroll {
+  overflow:hidden;
+}
+.scroll:hover {
+  overflow-y:auto;
+}
+
+.rotate {
+  -webkit-animation: 1s aniRotate infinite;
+}
+.rotate3d {
+  transform: perspective(24px);
+  -webkit-animation: 1s aniRotateY infinite;
+}
+.zooming {
+  -webkit-animation: 1s aniZooming infinite;
+}
+
+.spinner {
+  height: 60px;
+  width: 60px;
+  position: relative;
+  -webkit-animation: rotation .6s infinite linear;
+  -moz-animation: rotation .6s infinite linear;
+  -o-animation: rotation .6s infinite linear;
+  animation: rotation .6s infinite linear;
+  border-left: 6px solid rgba(0, 174, 239, .15);
+  border-right: 6px solid rgba(0, 174, 239, .15);
+  border-bottom: 6px solid rgba(0, 174, 239, .15);
+  border-top: 6px solid rgba(0, 174, 239, .8);
+  border-radius: 100%;
+}
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+.report-list {
+  font-weight: bold;
+  padding: 5px 0px 5px 32px;
+  margin: 5px 0px; 
+  cursor: pointer;
+  background-image: url(../img/icons/google122.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: 5px 0px;
+}
+
+.report-active {
+  background-color: #EEE;
+  text-decoration: inherit;
+  cursor: default !important;
+}
+
+
+.report-list:hover {
+  text-decoration: underline;
+}
+
+.fadeout {
+  -webkit-animation: 1s aniFadeout;
+}
+
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+
+.large::before {
+  width:48px;
+  height:48px;
+  line-height:48px;
+  font-size:48px;
+}
+.normal::before {
+  width:32px;
+  height:32px;
+  line-height:32px;
+  font-size:32px;
+}
+.tiny::before {
+  width:16px;
+  height:16px;
+  line-height:16px;
+  font-size:16px;
+}
+
+.hide {
+  display:none;
+}
+
+.red {
+  color: red;
+}
+.green {
+  color: green;
+}
+.blue {
+  color: blue;
+}
+.orange {
+  color:orange;
+}
+
+.link {
+  cursor:pointer;
+}
+}

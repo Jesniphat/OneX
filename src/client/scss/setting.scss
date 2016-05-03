@@ -1,0 +1,42 @@
+// setting/role/{id}
+.layout-panel {
+.module-permission {
+  > li {
+    .module-name {
+      font-weight: bold;
+      background-color:rgba(240,240,240,0.8);
+    }
+    > ul {
+      flex-wrap: wrap;
+      > li {
+        width: 368px;
+      }
+    }
+  }
+}
+
+.grant-table {
+  > li {
+    .header {
+      font-weight: bold;
+      background-color:rgba(240,240,240,0.4);
+    }
+    ul.check_list {
+      flex-wrap: wrap;
+      > li {
+        width: 176px;
+      }
+    }
+  }
+  > li.grouping {
+    .header2 {
+      color:#000;
+      font-weight: bold;
+      background-color:rgba(240,240,240,0.6);
+    }
+    > ul {
+      padding-left: 20px;
+    }
+  }
+}
+}

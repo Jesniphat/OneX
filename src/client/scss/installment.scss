@@ -1,0 +1,171 @@
+.layout-panel {
+.contract_status {
+  display: flex;
+  height:16px;
+  padding:4px 2px;
+  li {
+    width:4px;
+    border-radius:2px;
+    border:1px solid #eee;
+    height:16px;
+//    margin-left:2px;
+    &:first-child {
+//      margin-left:0;
+    }
+    &:nth-child(10) {
+      border-right: 1px solid blue;
+    }
+    &:nth-child(11) {
+      border-left: 1px solid blue;
+    }
+
+    &.status_WAIT {
+      background-color:silver;
+    }
+    &.status_WAIT_PARTIAL {
+      background: linear-gradient(to right, rgba(0, 255, 0, 1) 50%, rgba(0,255,0,0.1) 50%);
+    }
+    &.status_WAIT_PAID {
+      background-color:#00ff00;
+    }
+    &.status_OVERDUE {
+      background-color:red;
+    }
+    &.status_OVERDUE_PARTIAL {
+      background: linear-gradient(to right, rgba(255,255,0,1) 50%, rgba(255,255,0,0.1) 50%);
+    }
+    &.status_OVERDUE_PAID {
+      background: yellow;
+    }
+  }
+  &.small {
+    li {
+      &.status_WAIT_PARTIAL {
+        background: linear-gradient(to top, rgba(0, 255, 0, 1) 50%, rgba(0,255,0,0.1) 50%);
+      }
+      &.status_OVERDUE_PARTIAL {
+        background: linear-gradient(to top, rgba(255,255,0,1) 50%, rgba(255,255,0,0.1) 50%);
+      }
+    }
+  }
+
+}
+
+.contract_status2 {
+  @extend .contract_status;
+  border: 1px solid silver;
+  border-radius: 4px;
+  padding: 3px;
+  height:24px;
+  display:flex;
+  li {
+    border-radius:2px;
+    height:22px;
+    flex-grow:1;
+    &:nth-child(10) {
+      border: 1px solid #eee;
+    }
+    &:nth-child(11) {
+      border: 1px solid #eee;
+    }
+  }
+}
+
+.contract_status_legend {
+  display:flex;
+  padding:0 8px;
+  height:28px;
+  cursor: default;
+  li {
+    display:flex;
+    div:first-child {
+      width:4px;
+      border-radius:2px;
+      border:1px solid #eee;
+      margin-top:5px;
+      height:16px;
+    }
+    div:nth-child(2) {
+      padding: 0 4px;
+    }
+    .status_WAIT {
+      background-color:silver;
+    }
+    .status_WAIT_PARTIAL {
+      background: linear-gradient(to top, rgba(0, 255, 0, 1) 50%, rgba(0,255,0,0.1) 50%);
+    }
+    .status_WAIT_PAID {
+      background-color: #0f0;
+    }
+    .status_OVERDUE {
+      background-color: red;
+    }
+    .status_OVERDUE_PARTIAL {
+      background: linear-gradient(to top, rgba(255, 255, 0, 1) 50%, rgba(255,255,0,0.1) 50%);
+    }
+    .status_OVERDUE_PAID {
+      background-color: #ff0;
+    }
+  }
+}
+
+.contract-section {
+  border:1px solid silver;
+  border-radius:8px;
+  padding-top:8px;
+  padding-bottom:8px;
+  .section-header {
+    background-color:#eee;
+    font-size:18px;
+    height:32px;
+    line-height: 36px;
+    padding: 0 8px;
+    border-radius:4px;
+    font-weight:bold;
+  }
+}
+
+.contract-list {
+  li {
+    border: 1px solid silver;
+    border-radius:4px;
+    padding: 4px 8px;
+    cursor:pointer;
+
+    .status-text {
+      padding-left:4px;
+      font-size:12px;
+    }
+    &:hover {
+      background-color:#eee;
+    }
+    &.selected {
+      background-color:#eee;
+    }
+    .status_NORMAL {
+      color:green;
+    }
+    .status_DEBT {
+      color:orange;
+    }
+    .status_CLOSE_NORMAL {
+      color:green;
+    }
+    .status_CLOSE_CANCEL {
+      color:green;
+    }
+    .status_CLOSE_RETURN {
+      color:green;
+    }
+    .status_CLOSE_CONFISCATE {
+      color:orange;
+    }
+    .status_CLOSE_BAD_DEBT {
+      color:#000;
+    }
+  }
+  li:not(:last-child) {
+    margin-bottom:4px;
+  }
+}
+}

@@ -1,0 +1,62 @@
+$padding: 8px;
+$innerWidth: 80px;
+$panelWidth: $innerWidth + 2 * $padding;
+$mainIconWidth: 32px + 2 * $padding;
+$totalWidth: 12 * $panelWidth + $mainIconWidth;
+
+$panelTopHeight: 40px;
+$panelActionHeight: 40px;
+$panelMenuWidth: 2 * $panelWidth + $mainIconWidth;
+$panelInfoWidth: 2 * $panelWidth;
+
+$color1: rgba(153,0,102,0.9);
+$color2: adjust_hue($color1, 30);
+$color3: adjust_hue($color1, 60);
+$color4: adjust_hue($color1, 90);
+$color5: adjust_hue($color1, 120);
+$color6: adjust_hue($color1, 150);
+$color7: adjust_hue($color1, 180);
+$color8: adjust_hue($color1, 210);
+$color9: adjust_hue($color1, 240);
+$color10: adjust_hue($color1, 270);
+$color11: adjust_hue($color1, 300);
+$color12: adjust_hue($color1, 330);
+$color1Secondary: darken($color1, 10);
+$color2Secondary: darken($color2, 10);
+$color3Secondary: darken($color3, 10);
+$color4Secondary: darken($color4, 10);
+$color5Secondary: darken($color5, 10);
+$color6Secondary: darken($color6, 10);
+$color7Secondary: darken($color7, 10);
+$color8Secondary: darken($color8, 10);
+$color9Secondary: darken($color9, 10);
+$color10Secondary: darken($color10, 10);
+$color11Secondary: darken($color11, 10);
+$color12Secondary: darken($color12, 10);
+
+
+@import "reset";
+@import "flaticon";
+@import "icon";
+@import "layout";
+@import "screen";
+@import "misc";
+@import "flex";
+@import "dialog";
+@import "toaster";
+//
+@import "setting";
+@import "installment";
+
+//s
+@import "react-datepicker.min.scss";
+@import "idcard";
+@import "input-form";
+
+@import "flex-data-table";
+
+.field-date {
+	.datepicker__input-container {
+		width: 100%
+	}
+}
