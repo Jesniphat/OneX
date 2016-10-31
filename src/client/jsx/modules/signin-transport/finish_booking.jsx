@@ -46,10 +46,13 @@ var FinishBooking = React.createClass({
 
   getInitialState:function(){
     console.log("id = ", this.props.params.id);
+    console.log("page = ", this.props.params.page);
+    var page = this.props.params.page;
     var bookingId = this.props.params.id;
     var person_id = '0';
     var cTab = 'tab1';
     return {
+      page: page,
       bookingId: bookingId,
       fixedHeader: false,
       fixedFooter: false,
@@ -75,6 +78,9 @@ var FinishBooking = React.createClass({
         bookingPickup_place:'',
         bookingCurrentcy:'THB',
         bookingWaybill:'',
+        bookingSubtotal:'',
+        bookingVatAmount:'',
+        bookingVatRate:''
       },
     }
   },
@@ -154,7 +160,7 @@ var FinishBooking = React.createClass({
       }.bind(this)
     });
   },
-  
+
   genShipmentReport: function(){
     console.log("genShipmentReport Id = ", this.state.bookingId);
     var bookingId = this.state.bookingId;
@@ -193,9 +199,12 @@ var FinishBooking = React.createClass({
     this.state.bookingData.bookingPickup_place = data.pickup_place;
     this.state.bookingData.bookingDiscountAmount = data.discount_amount;
     this.state.bookingData.bookingChargeAmount = data.charge_amount;
-    this.state.bookingData.bookingTotalAmount = data.total_amount;
+    this.state.bookingData.bookingTotalAmount = data.grand_total_amount;
+    this.state.bookingData.bookingVatAmount = data.vat_amount;
+    this.state.bookingData.bookingVatRate = data.vat_rate;
     this.state.bookingData.bookingCurrentcy = (data.currency_id == '1')? 'THB':'USD';
     this.state.bookingData.bookingWaybill = data.waybill;
+    this.state.bookingData.bookingSubtotal = data.sub_total;
 
     this.setState({
       bookingData:this.state.bookingData
@@ -217,7 +226,19 @@ var FinishBooking = React.createClass({
         currency: this.state.bookingData.bookingCurrentcy,
       });
     }
-    
+
+    if(this.state.bookingData.bookingSubtotal != 0) {
+      console.log("Set Subtotal = ", this.state.bookingData.bookingSubtotal);
+      tableData.push({
+        name: 'Sub total',
+        piece: '',
+        weight: '',
+        depth: '',
+        height: '',
+        price: this.state.bookingData.bookingSubtotal,
+      });
+    }
+
     if(this.state.bookingData.bookingDiscountAmount > 0){
       console.log("Set Discount = ", this.state.bookingData.bookingDiscountAmount);
       tableData.push({
@@ -226,7 +247,7 @@ var FinishBooking = React.createClass({
         weight: '',
         depth: '',
         height: '',
-        price: '-' + this.state.bookingData.bookingDiscountAmount,
+        price: '-' + helper.numberFormat(this.state.bookingData.bookingDiscountAmount,2),
       });
     }
 
@@ -242,6 +263,18 @@ var FinishBooking = React.createClass({
       });
     }
 
+    if(this.state.bookingData.bookingVatAmount > 0){
+      console.log("Set Vat = ", this.state.bookingData.bookingVatAmount);
+      tableData.push({
+        name: 'Vat (' + this.state.bookingData.bookingVatRate + '%)' ,
+        piece: '',
+        weight: '',
+        depth: '',
+        height: '',
+        price: this.state.bookingData.bookingVatAmount,
+      });
+    }
+
     this.setState({
       tableProductRow: this.ProductRow(tableData)
     });
@@ -249,7 +282,11 @@ var FinishBooking = React.createClass({
 
   backBooking: function(){
     console.log("back to booking");
-    window.location.href='/booking-transport/#/transport/booking'
+    if(this.state.page == 0 || this.state.page == '0' ){
+      window.location.href='/booking-transport/#/booking-transport/booking/booking_new/0';
+    } else {
+      window.location.href='/onex/#/booking-transport/booking';
+    }
   },
 
   // genShipmentReport: function(){
@@ -283,17 +320,17 @@ var FinishBooking = React.createClass({
             <div style={{'width':'100%','height':'28px','float':'left'}}>
               <p style={{'text-align':'center','font-weight':'bold'}}>Booking No. : {this.state.bookingData.bookingNo}</p>
             </div>
-            
+
             <div style={{'width':'100%','height':'28px','float':'left'}}>
               <p style={{'text-align':'center','font-weight':'bold'}}>Waybill No. : {this.state.bookingData.bookingWaybill}</p>
             </div>
-            
+
             <div style={{'width':'100%','height':'28px','float':'left'}}>
               <p style={{'text-align':'center','font-weight':'bold'}}>Booking Date : {this.state.bookingData.bookingDate}</p>
             </div>
-            
+
             <div style={{'clear':'both'}}></div>
-            
+
             </div>
           </div>
           <div style={{'width':'408px','height':'263px','float': 'right'}}>
@@ -306,7 +343,7 @@ var FinishBooking = React.createClass({
                   <label style={{'font-size':'1.2em'}}>{this.state.bookingData.bookingFrom}</label>
                 </p>
               </div>
-              
+
               <div style={{'width':'73%','height':'55%','float':'right',paddingLeft:'5px'}}>
                 <p>
                   <label style={{'font-size':'0.8em'}}><div dangerouslySetInnerHTML={{__html:this.state.bookingData.bookingSender}}/></label>
@@ -323,7 +360,7 @@ var FinishBooking = React.createClass({
                   <label style={{'font-size':'1.2em'}}>{this.state.bookingData.bookingTo}</label>
                 </p>
               </div>
-              
+
               <div style={{'width':'73%','height':'55%','float':'right',paddingLeft:'5px'}}>
                 <p>
                   <label style={{'font-size':'0.8em'}}><div dangerouslySetInnerHTML={{__html:this.state.bookingData.bookingReceipient}}/></label>
@@ -366,7 +403,7 @@ var FinishBooking = React.createClass({
                   <h4>HEIGHT</h4>
                 </TableHeaderColumn>
                 <TableHeaderColumn className="head-box-tb4" style={{'width':'11%','textAlign':'center','padding':'0px','height':'49px'}}>
-                  <h4>PRICE</h4>
+                  <h4>TOTAL</h4>
                 </TableHeaderColumn>
                 <TableHeaderColumn style={{'width':'4%','textAlign':'center','padding':'0px','height':'49px'}}></TableHeaderColumn>
               </TableRow>
@@ -386,7 +423,7 @@ var FinishBooking = React.createClass({
               adjustForCheckbox={this.state.adjustForCheckbox}
             >
               <TableRow style={{'padding':'0px','height':'35px','border-bottom':'1px dotted #e2e2e2','border-top':'0px dotted #e2e2e2'}}>
-                <TableRowColumn style={{'padding':'0px','height':'35px','vertical-align':'middle'}}><h5>Total</h5></TableRowColumn>
+                <TableRowColumn style={{'padding':'0px','height':'35px','vertical-align':'middle'}}><h5>Grand total</h5></TableRowColumn>
                 <TableRowColumn style={{'padding':'0px','height':'35px','vertical-align':'middle'}}></TableRowColumn>
                 <TableRowColumn style={{'padding':'0px','height':'35px','vertical-align':'middle'}}></TableRowColumn>
                 <TableRowColumn className="in-box-tb" style={{'padding':'0px','height':'35px','vertical-align':'middle'}}></TableRowColumn>

@@ -12,7 +12,7 @@ var nsReport    = require('../../lib/nsreport');
 var xlsx        = require('node-xlsx');
 
 var oracleConfig ={
-  password: ':ug8up;', 
+  password: ':ug8up;',
   connectString : '192.168.10.4/ORCL'
 }
 
@@ -119,14 +119,14 @@ router.post('/list', [bodyParser.json()], function(req, res) {
   }
 
   var getRows = function() {
-    // var sortBy = req.body.sortBy || 'p.id';
-    // var sortDir = req.body.sortDir || 'ASC';
+    var sortBy = req.body.sortBy || 'p.code';
+    var sortDir = req.body.sortDir || 'ASC';
     var limit = req.body.limit || 500;
     var page = req.body.page || 0;
 
     $scope.opt = {
-    //   sortBy: sortBy,
-    //   sortDir: sortDir,
+      sortBy: sortBy,
+      sortDir: sortDir,
       limit: limit,
       page: page,
       totalRows: 0,
@@ -135,9 +135,9 @@ router.post('/list', [bodyParser.json()], function(req, res) {
     //sortBy = 'r.`' + sortBy + '`';
 
     var sql = mainQuery +
-      //' ORDER BY ' + sortBy + ' ' + sortDir + 
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -226,10 +226,10 @@ router.post('/export', [bodyParser.json()], function(req, res) {
     //sortBy = 'r.`' + sortBy + '`';
 
     var sql = mainQuery +
-      ' ORDER BY ' + sortBy + ' ' + sortDir + 
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
 
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
       //console.log($scope.rows);
     });
@@ -301,8 +301,9 @@ router.post('/getCustomerData', [bodyParser.json()], function(req, res) {
       var query = "SELECT p.id,c.id customer_id,p.code,p.com_id,p.type,c.member_type_id as memberTypeFieldList,c.member_no,p.prename,p.firstname,p.lastname,p.mobile,"
       + " p.email,p.lineid,p.birth,c.credit_term,p.approve_status,p.get_news,case when p.nationid <> '' then 'nationid' when p.passport <> '' then 'passport' when p.tax_id <> '' then 'tax_id' end as costomer_type_id,"
       + " concat(p.nationid,p.passport,p.tax_id) as id_number,p.gender,p.is_active,p.password,c.payment_type,c.currency_id,c.charge_text,c.discount,c.charge,c.discount_type, "
-      + " a.addr1,a.addr2,a.tambon,a.amphur,a.province,a.zipcode,a.tel"
+      + " a.addr1,a.addr2,a.tambon,a.amphur,a.province,a.zipcode,a.tel,cd.document_name1,cd.document_name2,cd.document_name3 "
       + " FROM person p INNER JOIN customer c ON p.id = c.person_id INNER JOIN customer_billing_name cb on c.id = cb.customer_id and cb.default_address = 'Y'"
+      + " LEFT JOIN customer_document cd ON c.id = cd.customer_id "
       + " INNER JOIN address a ON cb.address_id = a.id where p.id = '" + person_id + "'";
       return db.query(query).then(function(rows) {
           $scope.customerData = rows;
@@ -370,7 +371,21 @@ router.post('/saveCustomers',[bodyParser.json()], function(req, res) {
   //console.log(req.body);
   var $scope = {};
   $scope.address_id = [];
+  $scope.lastCode = {};
   //$scope.contact_id = [];
+
+  var checkDuplicateUser = function(){
+    var sql = "SELECT * FROM person WHERE code = :user";
+    return db.query(sql, req.body).then(function(res) {
+      console.log("res = ", res);
+      if(res.length > 0){
+        console.log("Duplicate");
+        throw "Can't use this username."
+      } else {
+        $scope.newCode = req.body.user;
+      }
+    });
+  }
 
   var selectLastcode = function(){
     console.log('selectLastcode');
@@ -378,7 +393,12 @@ router.post('/saveCustomers',[bodyParser.json()], function(req, res) {
       (function() {
         var query = "select code from person order by id desc limit 1";
         return db.query(query).then(function(rows) {
-            $scope.lastCode = rows[0];
+            console.log("lastCode = ", rows[0]);
+            if(rows[0] == undefined){
+              $scope.lastCode.code = "00000";
+            }else {
+              $scope.lastCode = rows[0];
+            }
           });
       })()
     ]);
@@ -454,7 +474,7 @@ router.post('/saveCustomers',[bodyParser.json()], function(req, res) {
     var insertDataContactList = function(i) {
       console.log('insertDataContactList');
       req.body.contactListData[i].customer_id = $scope.customer_id;
-  
+
       var sql = "insert into customer_contact(customer_id, name, department, email, tel_no, line_id, memo,"
         + " addr1, addr2, tambon, amphur, province, zipcode, created_at, created_by, updated_at, updated_by)"
         + " VALUES (:customer_id, :contactName, :contactPosition, :contactEmail, :contactPhoneNo, :contactLineId, :contactRemark,"
@@ -586,145 +606,23 @@ router.post('/saveCustomers',[bodyParser.json()], function(req, res) {
       return db.query(sql, req.body);
     }
 
-
-    var selectConfigOracle = function(){
-      console.log('selectConfigOracle');
-      return q.all([
-        (function() {
-          var query = "select * from oracle_config";
-          return db.query(query).then(function(rows) {
-              $scope.configOracle = rows;
-            });
-        })()
-      ]);
+    var insertDocumentName = function(){
+      // if(req.body.doc1Name == "" && req.body.doc2Name == "" && req.body.doc3Name == ""){
+      //   return true;
+      // }
+      var sql = "INSERT INTO customer_document (customer_id, document_name1, document_name2, document_name3, "
+              + "created_by, updated_by) VALUES (:customer_id, :doc1Name, :doc2Name, :doc3Name, '1', '1')";
+      console.log("sql insert doc = ", sql);
+      return db.query(sql, req.body).then(function(res){
+        $scope.docid = res.insertId
+      });
     }
-
-
-    var insertToOracle = function(){
-        console.log('insertToOracle');
-        //console.log(req.body);
-        var data = req.body;
-          if(data.memberTypeFieldList == -1 || data.memberTypeFieldList == '-1'){
-            data.customer_level = 'GENERAL';
-          }else if (data.memberTypeFieldList == 1 || data.memberTypeFieldList == '1') {
-            data.customer_level = 'PLATINUM';
-          }else if (data.memberTypeFieldList == 2 || data.memberTypeFieldList == '2') {
-            data.customer_level = 'GOLD';
-          }else if (data.memberTypeFieldList == 3 || data.memberTypeFieldList == '3') {
-            data.customer_level = 'SILVER';
-          }else if (data.memberTypeFieldList == 4 || data.memberTypeFieldList == '4') {
-            data.customer_level = 'SPENDER CLUB';
-          }
-        var billList = req.body.billingListData;
-
-        var list = {};
-        var flagDefault = 'N';
-        for(i = 0; i < billList.length; i++){
-          if(billList[i].default_billing=='Y'){
-            flagDefault = 'Y';
-            list.billName = billList[i].billingName;
-            list.addr = billList[i].full_address;
-            list.dalivery = billList[i].billingSend;
-            list.payment = billList[i].billingPayment;
-          }
-        }
-        if(flagDefault == 'N'){
-          list.billName = billList[0].billingName;
-          list.addr = billList[0].full_address;
-          list.dalivery = billList[0].billingSend;
-          list.payment = billList[0].billingPayment;
-        }
-        //console.log(list);
-
-        var str = $scope.configOracle;
-        //console.log(str);
-        for (f = 0; f < str.length; f++){
-          var myConn = {
-            user          : str[f].user,
-            password      : str[f].password,
-            connectString : str[f].ip
-          };
-          //console.log(myConn,$scope.person_id);
-          oraConns.connect(myConn).then(function(oradb){
-              var sql = " insert into COMPANY(ID,TYPE,CODE,NAME,ADDRESS,TEL,FAX,BILL_NAME,BILL_ADDR,DELIVERY_DETAIL,PAYMENT_DETAIL,"
-                      + " CREDIT_TERM,UPDATE_STAFF,CUSTOMER_LEVEL,UPDATE_DATE,MEMBER_NO,MYSQL_PERSON_ID) "
-                      + " values((PAYMENT_ID.NEXTVAL),:type,:code,:name,:address,:tel,:fax,:bill_name,:bill_addr,:delivery_detail,"
-                      + " :payment_detail,:credit_term,0,:customer_level,SYSDATE,:member_no,:sql_id) ";
-              oraConns.query(oradb, sql,{
-                type:'C',
-                code:data.customer_code,
-                name:data.names + '  ' + data.last_name,
-                address:list.addr,
-                tel:data.phone,
-                fax:data.fax,
-                bill_name:list.billName,
-                bill_addr:list.addr,
-                delivery_detail:list.dalivery,
-                payment_detail:list.payment,
-                credit_term:data.credit_term,
-                customer_level:data.customer_level,
-                member_no:data.member_code,
-                sql_id:$scope.person_id
-              },true);
-            }).catch(function(e){
-            console.log('Phang');
-            oraConns.close(oradb);
-            db.rollback(function(e) {
-              res.send({
-                status:false,
-                error:e
-              });
-            });
-            res.send({
-              status:false,
-              error:e
-            });
-          });
-        }
-        return true;
-      }
-
-      var getCompanyId = function(){
-        console.log("getCompanyId");
-        var str = $scope.configOracle;
-        var myConn = {
-          user          : str[0].user,
-          password      : str[0].password,
-          connectString : str[0].ip
-        };
-        console.log('getCompanyId');
-        oraConns.connect(myConn).then(function(oradb){
-          var sql = 'select MAX(ID) from COMPANY ';
-          return oraConn.query(oradb, sql, {}).then(function(result) {
-            $scope.companyId = result.rows[0][0];
-            console.log('$scope.companyId = ',result.rows[0][0]);
-            updateComidToMysql($scope.companyId);
-          });
-        }).catch(function(e){
-            console.log('Phang');
-            oraConns.close(oradb);
-            res.send({
-              status:false,
-              error:e
-            });
-          });
-      }
-
-      var updateComidToMysql = function(company_id){
-        // req.body.companyOracleId = $scope.companyId;
-         console.log('updateComidToMysql ',company_id);
-        // console.log('up to myaql 1',req.body.companyOracleId,$scope.companyId);
-        // // console.log('up to myaql 2',req.body.person_id);
-        var sql = " update person set company_oracle_id=:companyOracleId where id=:person_id";
-        return db.query(sql, {companyOracleId:company_id,person_id:req.body.person_id});
-        //console.log(sql);
-      }
 
     var db = conn.connect();
     db.beginTransaction()
-      .then(selectConfigOracle)
-      .then(selectLastcode)
-      .then(_GenCode)
+      .then(checkDuplicateUser)
+      // .then(selectLastcode)
+      // .then(_GenCode)
       .then(insertPerson)
       .then(insertCustomers)
       .then(insertContactList)
@@ -735,8 +633,10 @@ router.post('/saveCustomers',[bodyParser.json()], function(req, res) {
       .then(selectDefultAddr)
       .then(selectDefultBill)
       .then(updateAddBillDefault)
-      .then(insertToOracle)
-      .then(getCompanyId) 
+      .then(insertDocumentName)
+      // .then(changeFileName)
+      // .then(insertToOracle)
+      // .then(getCompanyId)
       .then(function(){
         db.commit();
         res.send({
@@ -746,12 +646,12 @@ router.post('/saveCustomers',[bodyParser.json()], function(req, res) {
               done:'เพิ่มข้อมูลสำเร็จ'
           }
         });
-      }).catch(function(e) {
-        console.log('rollback', e);
+      }).catch(function(error) {
+        console.log('rollback', error);
         db.rollback(function(e) {
           res.send({
             status:false,
-            error:e
+            error:error
           });
         });
       });
@@ -928,6 +828,9 @@ router.post('/editCustomers',[bodyParser.json()], function(req, res) {
 
     var selectDefultBill = function(){
       console.log('selectDefultAddr');
+      if(req.body.billingListData.length == 0){
+        return true;
+      }
       return q.all([
         (function() {
           var query = "select id from customer_billing_name where default_billing = 'Y' AND customer_id = '" + req.body.customer_id + "'";
@@ -939,6 +842,9 @@ router.post('/editCustomers',[bodyParser.json()], function(req, res) {
     }
 
     var updateAddBillDefault = function(){
+      if(req.body.billingListData.length == 0){
+        return true;
+      }
       console.log('updateAddBillDefault');
       console.log('Defualt Id is = ',$scope.defultAddrId.id);
       console.log('Defualt Bill Id is = ',$scope.defultBillId);
@@ -966,9 +872,21 @@ router.post('/editCustomers',[bodyParser.json()], function(req, res) {
       ]);
     }
 
+    var updateDocumentName = function(){
+      if(req.body.doc1Name == "" && req.body.doc2Name == "" && req.body.doc3Name == ""){
+        return true;
+      }
+      var sql = "UPDATE customer_document SET  document_name1=:doc1Name, "
+              + "document_name2=:doc2Name, document_name3=:doc3Name WHERE customer_id=:customer_id";
+      console.log("sql insert doc = ", sql);
+      return db.query(sql, req.body).then(function(res){
+        console.log("Update doc success : ", res);
+      });
+    }
+
     var db = conn.connect();
     db.beginTransaction()
-      .then(selectConfigOracle)
+      // .then(selectConfigOracle)
       .then(updatePersonNationId)
       .then(updatePerson)
       .then(updateCustomers)
@@ -983,9 +901,10 @@ router.post('/editCustomers',[bodyParser.json()], function(req, res) {
       .then(selectDefultAddr)
       .then(selectDefultBill)
       .then(updateAddBillDefault)
+      .then(updateDocumentName)
       .then(function(){
         db.commit();
-        updateToOracle();
+        // updateToOracle();
         res.send({
           status:true,
           data: {
@@ -1197,7 +1116,7 @@ router.post('/group_proudct', [bodyParser.json()], function(req, res) {
 });
 
 router.post('/product_all_item', [bodyParser.json()], function(req, res) {
-  if(req.body.group_id != "0") 
+  if(req.body.group_id != "0")
   {
     oraConn.connect({ user:req.body.oracle_db }).then(function(oradb) {
       var $scope = {};
@@ -1219,7 +1138,7 @@ router.post('/product_all_item', [bodyParser.json()], function(req, res) {
     });
   } else {
     res.send({ status:true, data: []});
-  } 
+  }
 
 });
 
@@ -1263,15 +1182,15 @@ router.post('/group_proudct_save', [bodyParser.json()], function(req, res) {
             var all = [];
             for (var i in req.body.items){
               req.body.items[i];
-              var dbData = { 
-                point_group_id: params.group_id, 
-                oracle_product_code: req.body.items[i].code, 
-                oracle_product_id: req.body.items[i].id, 
-                oracle_dbname: params.oracle_db 
+              var dbData = {
+                point_group_id: params.group_id,
+                oracle_product_code: req.body.items[i].code,
+                oracle_product_id: req.body.items[i].id,
+                oracle_dbname: params.oracle_db
               };
-              var oraData = { 
-                point_group_id: params.group_id, 
-                product_code: req.body.items[i].code, 
+              var oraData = {
+                point_group_id: params.group_id,
+                product_code: req.body.items[i].code,
                 product_id: req.body.items[i].id,
                 staff_id: params.staff_id
               };
@@ -1314,7 +1233,7 @@ router.post('/group_proudct_delete', [bodyParser.json()], function(req, res) {
   console.log('group_proudct_delete', req.body);
   db.delete('point_group_product', { point_group_id: req.body.id }).then(function(data){
     oracleConfig.user = req.body.oracle_db;
-    
+
     oraConn.connect(oracleConfig).then(function(oradb) {
       oraSql = "DELETE FROM point_group_product WHERE point_group_id = :point_group_id";
       oraConn.query(oradb, oraSql, { point_group_id: req.body.id }, true).then(function(){
@@ -1342,7 +1261,7 @@ router.post('/group_proudct_delete', [bodyParser.json()], function(req, res) {
 router.post('/list_farepoint', function(req, res) {
   var db = conn.connect();
   var sql = "SELECT CONCAT(DATE_FORMAT(m.effective_begin, '%d%b%Y'), '-' ,DATE_FORMAT(m.effective_end, '%d%b%Y')) effective "+
-      ", m.purchase, m.point, m.on_system, m.unit FROM member_point_rule m ";
+      ", m.purchase, m.product_code, m.point, m.on_system, m.member_type, m.unit FROM member_point_rule m ";
   db.query(sql, {}).then(function(data){
     res.send({ status:true, data: data });
   }).catch(function(e){
@@ -1352,13 +1271,49 @@ router.post('/list_farepoint', function(req, res) {
 
 router.post('/list_farereword', function(req, res) {
   var db = conn.connect();
-  var sql = "SELECT CONCAT(DATE_FORMAT(effective_begin, '%d%b%Y'), '-' ,DATE_FORMAT(effective_end, '%d%b%Y')) effective " + 
-        ", pay, point, product_code, on_system FROM member_point_reword";
+  var sql = "SELECT CONCAT(DATE_FORMAT(effective_begin, '%d%b%Y'), '-' ,DATE_FORMAT(effective_end, '%d%b%Y')) effective " +
+        ", pay, point, product_code, on_system , remark FROM member_point_reword";
   db.query(sql, {}).then(function(data){
     res.send({ status:true, data: data });
   }).catch(function(e){
     res.send({ status:false, error: e });
   });
 });
+
+////////////////////////////////////////////////////////////////////////////////
+/////////   getCompanyProfile   ////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/getCompanyProfile', [bodyParser.json()], function(req, res) {
+  console.log("data = ", req.body);
+  var $scope = {};
+  var getCompanyProfile = function(){
+    var sql = "SELECT * FROM company_profile order by id desc limit 1";
+    return db.query(sql, {}).then(function(res) {
+      $scope.company = res[0];
+      console.log("data = ", $scope.company);
+    });
+  }
+
+  var db = conn.connect();
+  db.beginTransaction()
+    .then(getCompanyProfile)
+    .then(function(){
+        res.send({
+          status:true,
+          data: {
+              done: $scope.company
+          }
+        });
+      }).catch(function(e) {
+        console.log('rollback', e);
+        db.rollback(function(e) {
+          res.send({
+            status:false,
+            error:e
+          });
+        });
+      });
+});
+
 
 module.exports = router;

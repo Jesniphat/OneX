@@ -22,7 +22,7 @@ App.Index = React.createClass({
     systemActions.setTheme(1);
     systemActions.updateTopPanel({
       code:'pos',
-      name:'ข้อมูลลูกค้า',
+      name:'Client setting',
       icon:'front17'
     });
     menuActions.show([
@@ -65,7 +65,7 @@ App.Dashboard = React.createClass({
 //     {ProductGroup.Routes}
 //   </Route>
 // );
-// 
+//
 // gอากลับไปใส่ด้วย {id:'group_product', route:'/preliminary/group_product', label:'preliminary.menu.group_product', icon:'website12',acl:['M_PRELIMINARY_PRODUCT_GROUP']}
 
 module.exports = App;

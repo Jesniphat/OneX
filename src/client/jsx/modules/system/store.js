@@ -36,6 +36,7 @@ var systemStore = Reflux.createStore({
   },
 
   onSignout: function() {
+    console.log("requestSignOut");
     ajaxActions.request('/api/system/signout', {}, this.didSignout);
   },
 
@@ -45,6 +46,18 @@ var systemStore = Reflux.createStore({
       return;
     }
     systemActions.signout.error(res.error);
+  },
+
+  onSignoutTransport: function() {
+    ajaxActions.request('/api/system/signoutTransport', {}, this.didSignoutTransport);
+  },
+
+  didSignoutTransport: function(res) {
+    if (res.status===true) {
+      systemActions.signoutTransport.done();
+      return;
+    }
+    systemActions.signoutTransport.error(res.error);
   },
 
   onPing: function() {

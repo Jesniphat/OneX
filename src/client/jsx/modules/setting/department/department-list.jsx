@@ -36,7 +36,7 @@ var DepartmentList = React.createClass({
         {name:'name', title:'department.name'},
         {name:'actions', type:'actions', width:(2*28+8)+'px', render:function(row) {
           return (<div className="flex">
-            <FlexIcon to="setting.department.edit" param={{id:row.id}} icon="create3" title="action.edit"></FlexIcon>
+            <FlexIcon to={'/setting/department/department_edit/'+row.id} icon="create3" title="action.edit"></FlexIcon>
             <FlexIcon icon="rubbish" title="action.delete" onClick={function(e) {console.log('onClick');this.doDelete(e, row.id)}.bind(this)}></FlexIcon>
           </div>);
         }.bind(this)}
@@ -48,7 +48,8 @@ var DepartmentList = React.createClass({
   },
 
   doDepartmentNew: function() {
-    this.context.router.transitionTo('setting.department.edit', {id:0});
+    // this.context.router.transitionTo('setting.department.edit', {id:0});
+    this.props.history.pushState(null, '/setting/department/department_edit/0');
   },
 
   doDelete: function(e, id) {

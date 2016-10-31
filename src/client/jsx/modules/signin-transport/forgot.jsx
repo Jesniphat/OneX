@@ -39,6 +39,57 @@ const style = {
   margin: 12,
 };
 module.exports = React.createClass({
+  getInitialState: function(){
+    console.log("fogor");
+    return{
+      email:""
+    }
+  },
+
+  componentDidMount: function() {
+    console.log("start");
+  },
+
+  forgotPass: function(){
+    // console.log("ref = ", this.refs.email.getValue());
+    var the_email = this.refs.email.getValue();
+    var isValidEmail = function(str) {
+      var filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
+      return (filter.test(str));
+    }
+
+    if(!(isValidEmail(this.refs.email.getValue()))){
+      console.log("Not email");
+      // toasterActions.pop({
+      //   type:'warning',
+      //   message:'Email Not Match'
+      // });
+      alert("Email Not Match");
+      return;
+    }
+
+    $.ajax({
+      type:'post',
+      url:'/register/api',
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify({
+        act:'forgot',
+        email:the_email
+      }),
+      dataType:'json',
+      success:function(res) {
+        if (res.status===true) {
+          console.log("Save data complete = ", res.data.user);
+          alert("Your password has been successfully sent to your email address ");
+        } else {
+          alert("Don't have this email");
+        }
+      }.bind(this),
+      error:function(e,m) {
+        console.log("e,m ", e,m);
+      }.bind(this)
+    });
+  },
   render: function() {
 
     return(
@@ -63,8 +114,9 @@ module.exports = React.createClass({
                     <TextField
                         hintText="Your email"
                         style={{width:'517px'}}
+                        ref="email"
                     />
-                    <RaisedButton label="send" secondary={true} style={{float:'right'}}/>
+                    <RaisedButton label="send" onClick={this.forgotPass} secondary={true} style={{float:'right'}}/>
                 </div>
             </div>
         </div>

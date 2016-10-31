@@ -26,7 +26,7 @@ var Search = React.createClass({
         if($.trim($('.search.input>input').val()) != '') {
           $('.search.input').removeClass('error');
           $('.search.input').addClass('loading');
-          actions.getTaxID({ id_card: $('.search.input>input').val() });
+          actions.getTaxID({ code: $('.search.input>input').val() });
         }
         return false;
       }
@@ -41,12 +41,16 @@ var Search = React.createClass({
     }
   },
   render: function() {
+    const width = {
+      width: 460,
+    }
+
     return (
       <div className="ui centered grid">
-        <div className="ten wide column">
+        <div className="column" style={width}>
           <form className="ui search form" >
             <div className="two fields">
-              <div className="field" style={{ textAlign:'right',width:125,paddingTop:9,fontSize:18 }}>
+              <div className="field" style={{ textAlign:'right',width:130,paddingTop:9,fontSize:18 }}>
                 {tr.translate('text.search')}
               </div>
               <div className="field">

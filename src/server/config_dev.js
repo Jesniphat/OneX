@@ -39,7 +39,7 @@ module.exports = {
     user: 'ss_onex',
     pass: 'onex!4555',
     debug: false,
-    connLimit: 100,
+    connLimit: 5,
     charset: 'utf8_unicode_ci'
   },
   oracledb: {

@@ -12,6 +12,7 @@ router.use('/department', require('./department/department'));
 router.use('/customer', require('./customer/customer'));
 router.use('/role', require('./role/role'));
 router.use('/grant', require('./grant/grant'));
+router.use('/default', require('./default/default'));
 
 router.use('/counts', [bodyParser.json()], function(req, res) {
   var db = conn.connect();

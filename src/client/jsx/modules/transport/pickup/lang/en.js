@@ -1,12 +1,12 @@
 module.exports = {
   pickupEdit:{
-    booking_no:'Booking No.',
+    booking_no:'Booking no.',
     customer:'Customer',
     pickup_no:'Pickup No.',
     pickup_date_set:'Pickup date',
     waybill:'Waybill',
     pickup_date:'Pickup date',
-    prepare_by:'Prepare by',
+    prepare_by:'Prepared by',
     driver:'Driver',
     save:'SAVE',
     district:'District',
@@ -34,7 +34,8 @@ module.exports = {
   pickupReceiptTable:{
     pickup_no: "Pickup no.",
     booking_no: "Booking no.",
-    item_no: "Barcode"
+    item_no: "Barcode",
+    item_nos: "Item no."
   },
   pickupDialog:{
     confirm_to_delete: "Cancel pickup",

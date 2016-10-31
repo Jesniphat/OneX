@@ -39,7 +39,7 @@ module.exports = {
     prod_group_description: 'รายละเอียดกลุ่มสินค้า',
     add_new_customer: {
       member_type: 'Member Type',
-      customer_code: 'Code',
+      customer_code: 'Username',
       tax_num: 'ID',
       member_code: 'Member Code',
       titel:'Title',

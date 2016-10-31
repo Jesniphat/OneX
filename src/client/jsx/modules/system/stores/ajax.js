@@ -55,7 +55,7 @@ var ajaxStore = Reflux.createStore({
         {id:'ok', icon:'check52', label:'dialog.ok'}
       ]
     }, function() {
-      
+
       window.location.href = '/signin';
     });
   },
@@ -72,7 +72,7 @@ var ajaxStore = Reflux.createStore({
     }
     $.ajax({
       type:'post',
-      url: '/securestock' + path,
+      url: '/onex' + path,
       data: req.data,
       contentType: req.contentType,
       dataType: 'json',
@@ -103,7 +103,7 @@ var ajaxStore = Reflux.createStore({
     // return;
     $.ajax({
       type: "POST",
-      url: '/securestock' + path,
+      url: '/onex' + path,
       data: JSON.stringify(data),
       contentType: 'application/json; charset=utf-8',
       dataType: 'binary',

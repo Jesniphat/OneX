@@ -285,15 +285,15 @@ module.exports = {
     {
       items: [
           //Proforma-invoice-Total
-        {
-        //   type:'rectangle',
-        //   x:0,y:3,w:540,h:73,
-        //   lineWidth:1,
-        //   radius:0
-          type:'image',
-          x:0, y:3, fit:[540, 73],
-          image: './images/Proforma-invoice-Total.png'
-        },
+        // {
+        // //   type:'rectangle',
+        // //   x:0,y:3,w:540,h:73,
+        // //   lineWidth:1,
+        // //   radius:0
+        //   type:'image',
+        //   x:0, y:3, fit:[540, 73],
+        //   image: './images/Proforma-invoice-Total.png'
+        // },
         {
           type:'text',
           x:10,y:3,w:450,h:14,
@@ -345,7 +345,7 @@ module.exports = {
         {
           type:'text',
           x:10,y:45,w:450,h:14,
-          text:'TOTAL',
+          field:'vat_text',
           align:'left',
           bold:true,
           fontSize:14
@@ -353,14 +353,30 @@ module.exports = {
         {
           type:'text',
           x:465,y:45,w:65,h:14,
-          field:'total_amount',
+          field:'vat_amount',
           align:'right',
           bold:true,
           fontSize:14
         },
         {
           type:'text',
-          x:0,y:59,w:539,h:14,
+          x:10,y:59,w:450,h:14,
+          text:'GRAND TOTAL',
+          align:'left',
+          bold:true,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:465,y:59,w:65,h:14,
+          field:'grand_total_amount',
+          align:'right',
+          bold:true,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:0,y:73,w:539,h:14,
           field:'amountText',
           align:'right',
           bold:true,
@@ -375,12 +391,12 @@ module.exports = {
         //   lineWidth:1,
         //   radius:0
           type:'image',
-          x:0, y:81, fit:[540, 60],
+          x:0, y:96, fit:[540, 60],
           image: './images/proforma-invoice#4.png'
         },
         {
           type:'text',
-          x:0,y:86,w:540,h:17,
+          x:0,y:101,w:540,h:17,
           text:'THANK YOU FOR YOUR ORDER',
           align:'center',
           bold:true,
@@ -388,7 +404,7 @@ module.exports = {
         },
         {
           type:'text',
-          x:0,y:103,w:540,h:15,
+          x:0,y:118,w:540,h:15,
           text:'BILLING INFORMATION',
           align:'center',
           bold:true,
@@ -396,7 +412,7 @@ module.exports = {
         },
         {
           type:'text',
-          x:0,y:118,w:540,h:14,
+          x:0,y:133,w:540,h:14,
           text:'Siam Commerical Bank : Siam Paragon Branch : ACC No 123456789-1',
           align:'center',
           bold:true,
@@ -410,7 +426,7 @@ module.exports = {
       items: [
         {
           type:'text',
-          x:0,y:303,w:540,h:14,
+          x:0,y:318,w:540,h:14,
           text:'COMPANY INFORMATION',
           align:'left',
           bold:true,
@@ -418,7 +434,7 @@ module.exports = {
         },
         {
           type:'text',
-          x:0,y:318,w:540,h:50,
+          x:0,y:333,w:540,h:50,
           text:'Logistic one co., ltd (Head office) \nTaxpayer Identification Number : 123456789012 \n1000/125 Soi Sukumvit 55 Sukhumvit Rd. North Klongton Wattana Bangkok Thailand 10110 \nEmail onex@logisticone.com   Tel: 026754555',
           align:'left',
           bold:false,

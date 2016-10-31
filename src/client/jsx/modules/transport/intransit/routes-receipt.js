@@ -1,19 +1,19 @@
 const routeConfig = {
-  path: 'pickup-receipt',
+  path: 'intransit-receipt',
   getComponent(location, cb) {
     require.ensure([], (require) => {
-      cb(null, require('./pickup.jsx').Index)
+      cb(null, require('./intransit.jsx').Index)
     })
   },
   getIndexRoute(location, cb) {
     require.ensure([], (require) => {
-      cb(null, {component: require('./pickup-receipt.jsx')})
+      cb(null, {component: require('./intransit-receipt.jsx')})
     })
   },
   getChildRoutes(location, cb) {
     require.ensure([], (require) => {
       cb(null, [
-        {component: require('./pickup-receipt.jsx')}
+        {component: require('./intransit-receipt.jsx')}
       ])
     })
   }

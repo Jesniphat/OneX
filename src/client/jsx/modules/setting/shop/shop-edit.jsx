@@ -69,7 +69,8 @@ var ShopEdit = React.createClass({
   },
 
   getInitialState: function() {
-    var id = parseInt(this.context.router.getCurrentParams().id);
+    // var id = parseInt(this.context.router.getCurrentParams().id);
+    var id = this.props.params.id;
     if (isNaN(id)) {
       id = 0;
     }
@@ -149,7 +150,7 @@ var ShopEdit = React.createClass({
   },
 
   componentDidMount: function() {
-    shopActions.getById(this.context.router.getCurrentParams().id);
+    shopActions.getById(this.props.params.id);
     infoPanelActions.show('setting.shop', null);
   },
 

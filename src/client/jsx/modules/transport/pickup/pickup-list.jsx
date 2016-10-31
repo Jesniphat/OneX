@@ -73,10 +73,10 @@ var PickupList = React.createClass({
           }.bind(this);
           return (<div className="flex">
             <div onClick={e}>
-              <FlexIcon icon="bed24" title="action.select"></FlexIcon>
+              <FlexIcon icon="create3" title="action.select"></FlexIcon>
             </div>
             <div onClick={c}>
-              <FlexIcon icon="cancel19" title="action.select"></FlexIcon>
+              <FlexIcon icon="cancel19" title="action.cancel"></FlexIcon>
             </div>
           </div>);
         }.bind(this)},

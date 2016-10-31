@@ -12,7 +12,11 @@ const routeConfig = [
           require('../preliminary/routes'),
           require('../report/routes'),
           require('../manager/routes'),
-          require('../transport/routes')
+          require('../transport/routes'),
+          require('../fare-transport/routes'),
+          require('../booking-transport/routes'),
+          require('../payment-tracking/routes'),
+          require('../report-transport/routes')
         ])
       })
     }

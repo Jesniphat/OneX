@@ -9,7 +9,7 @@ module.exports = {
   session: {
     secret: 'ss_tcradio',
     options: {
-      host: '122.155.3.240',// Host name for database connection.
+      host: '202.129.206.254',// Host name for database connection.
       port: 33175,// Port number for database connection.
       user: 'ss_tcradio',// Database user.
       password: 'ss2015',// Password for the above database user.
@@ -33,13 +33,13 @@ module.exports = {
     }
   },
   db: {
-    host: '122.155.3.240',
+    host: '202.129.206.254',
     port: 33175,
     schema: 'ss_tcradio',
     user: 'ss_tcradio',
     pass: 'ss2015',
     debug: false,
-    connLimit: 100,
+    connLimit: 5,
     charset: 'utf8_unicode_ci'
   },
   oracledb: {

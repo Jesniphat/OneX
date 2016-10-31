@@ -85,7 +85,7 @@ var SigninForm = React.createClass({
                   isLock:false,
                   message:tr('signin.signin_success')
                 }, function() {
-                  parent.window.location.href='/booking-transport/#/transport/home';
+                  parent.window.location.href='/booking-transport/#/booking-transport/home';
                 });
               } else if (res.session===false){
                 this.setState({

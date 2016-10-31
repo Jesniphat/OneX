@@ -136,6 +136,18 @@ var customer = Reflux.createStore({
     }else {
       customersActions.deleteCustomers.error(res.error);
     }
+  },
+
+  onGetCompanyProfile: function(req){
+    ajaxActions.request('/api/preliminary/getCompanyProfile', req, this.doneGetCompanyProfile);
+  },
+  doneGetCompanyProfile: function(res){
+    if (res.status === true) {
+      // console.log("res = ", res);
+      customersActions.getCompanyProfile.done(res.data.done);
+    }else {
+      customersActions.getCompanyProfile.error(res.error);
+    }
   }
 });
 

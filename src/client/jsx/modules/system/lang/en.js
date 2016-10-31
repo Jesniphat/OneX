@@ -47,9 +47,12 @@ module.exports = {
   },
   dialog: {
     title: {
-      confirm_to_exit:'ยืนยันการออก'
+      session_timeout: 'Connection expired',
+      confirm_to_exit:'Confirm to exit',
+      confirm_to_signout:'Confirm to singout'
     },
-    confirm:'ยืนยัน',
-    cancel:'ยกเลิก'
+    confirm:'Confirm',
+    ok:'Ok',
+    cancel:'Cancel'
   }
 }

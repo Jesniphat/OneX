@@ -5,8 +5,8 @@ var Router        = require('react-router');
 var Index = React.createClass({
   render: function() {
     return (
-      <div id="signin-app" className="layout-panel box6 flex">
-        <div className="box6 content">
+      <div className="layout-panel box6 flex">
+        <div id="signin-app" className="box6 content" style={{ paddingTop: 40, height: 240 }}>
           {this.props.children}
         </div>
       </div>

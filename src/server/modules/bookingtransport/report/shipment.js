@@ -44,15 +44,15 @@ module.exports = {
         },
         {
           type:'text',
-          x:300, y:66, w:240, h:30,
-          text:'BOOKING CONFIRMED',
+          x:260, y:66, w:280, h:30,
+          text:'BOOKING CONFIRMATION',
           align:'right',
           fontSize:30,
           bold:true
         },
         {
           type:'text',
-          x:348, y:96, w:120, h:16,
+          x:328, y:96, w:110, h:16,
           text:'WAYBILL NUMBER: ',
           align:'right',
           fontSize:16,
@@ -60,14 +60,14 @@ module.exports = {
         },
         {
           type:'text',
-          x:470, y:96, w:70, h:16,
+          x:450, y:96, w:90, h:16,
           field:'waybill',
           align:'right',
           fontSize:16
         },
         {
           type:'text',
-          x:348, y:112, w:120, h:16,
+          x:328, y:112, w:110, h:16,
           text:'BOOKING NO: ',
           align:'right',
           fontSize:16,
@@ -75,14 +75,14 @@ module.exports = {
         },
         {
           type:'text',
-          x:470, y:112, w:70, h:16,
+          x:450, y:112, w:90, h:16,
           field:'booking_no',
           align:'right',
           fontSize:16
         },
         {
           type:'text',
-          x:348, y:128, w:120, h:16,
+          x:328, y:128, w:110, h:16,
           text:'SHIPMENT DATE: ',
           align:'right',
           fontSize:16,
@@ -90,14 +90,14 @@ module.exports = {
         },
         {
           type:'text',
-          x:470, y:128, w:70, h:16,
+          x:450, y:128, w:90, h:16,
           field:'pickup_date',
           align:'right',
           fontSize:16
         },
         {
           type:'text',
-          x:348, y:144, w:120, h:16,
+          x:328, y:144, w:110, h:16,
           text:'BOOKING DATE: ',
           align:'right',
           fontSize:16,
@@ -105,7 +105,7 @@ module.exports = {
         },
         {
           type:'text',
-          x:470, y:144, w:70, h:16,
+          x:450, y:144, w:90, h:16,
           field:'booking_date',
           align:'right',
           fontSize:16
@@ -125,7 +125,7 @@ module.exports = {
         {
           type:'text',
           x:5,y:177,w:100,h:16,
-          text:'Ship from',
+          text:'Sender',
           align:'left',
           bold:true,
           fontSize:16
@@ -141,7 +141,7 @@ module.exports = {
         {
           type:'text',
           x:285,y:177,w:100,h:16,
-          text:'Ship to',
+          text:'Receipient',
           align:'left',
           bold:true,
           fontSize:16
@@ -336,7 +336,7 @@ module.exports = {
         },
         {
           type:'text',
-          x:460,y:335,w:35,h:16,
+          x:450,y:335,w:35,h:16,
           text:'Total',
           align:'center',
           fontSize:16
@@ -422,7 +422,7 @@ module.exports = {
         {
           type:'text',
           x:0,y:10,w:450,h:14,
-          text:'Discount',
+          text:'Sub total',
           align:'left',
           bold:false,
           fontSize:14
@@ -430,7 +430,7 @@ module.exports = {
         {
           type:'text',
           x:450,y:10,w:45,h:14,
-          field:'discount_amount',
+          field:'sub_total',
           align:'right',
           bold:false,
           fontSize:14
@@ -446,7 +446,7 @@ module.exports = {
         {
           type:'text',
           x:0,y:24,w:450,h:14,
-          text:'Surcharge',
+          text:'Discount',
           align:'left',
           bold:false,
           fontSize:14
@@ -454,7 +454,7 @@ module.exports = {
         {
           type:'text',
           x:450,y:24,w:45,h:14,
-          field:'charge_amount',
+          field:'discount_amount',
           align:'right',
           bold:false,
           fontSize:14
@@ -470,6 +470,54 @@ module.exports = {
         {
           type:'text',
           x:0,y:38,w:450,h:14,
+          text:'Surcharge',
+          align:'left',
+          bold:false,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:450,y:38,w:45,h:14,
+          field:'charge_amount',
+          align:'right',
+          bold:false,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:495,y:38,w:45,h:14,
+          field:'currency',
+          align:'center',
+          bold:false,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:0,y:52,w:450,h:14,
+          field:'vat_text',
+          align:'left',
+          bold:false,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:450,y:52,w:45,h:14,
+          field:'vat_amount',
+          align:'right',
+          bold:false,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:495,y:52,w:45,h:14,
+          field:'currency',
+          align:'center',
+          bold:false,
+          fontSize:14
+        },
+        {
+          type:'text',
+          x:0,y:66,w:450,h:14,
           text:'Grand Total',
           align:'left',
           bold:true,
@@ -477,15 +525,15 @@ module.exports = {
         },
         {
           type:'text',
-          x:450,y:38,w:45,h:14,
-          field:'total_amount',
+          x:450,y:66,w:45,h:14,
+          field:'grand_total_amount',
           align:'right',
           bold:true,
           fontSize:14
         },
         {
           type:'text',
-          x:495,y:38,w:45,h:14,
+          x:495,y:66,w:45,h:14,
           field:'currency',
           align:'center',
           bold:true,
@@ -496,12 +544,12 @@ module.exports = {
 
         {
           type:'image',
-          x:0, y:65, fit:[540, 50],
+          x:0, y:90, fit:[540, 50],
           image: './images/greybg.png'
         },
         {
           type:'text',
-          x:3,y:64,w:537,h:16,
+          x:3,y:89,w:537,h:16,
           text:'Payment details',
           align:'left',
           bold:true,
@@ -510,7 +558,7 @@ module.exports = {
 
         {
           type:'text',
-          x:3,y:101,w:500,h:30,
+          x:3,y:120,w:500,h:30,
           field:'payment_status',
           align:'left',
           fontSize:27

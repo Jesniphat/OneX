@@ -18,6 +18,7 @@ const routeConfig = {
         require('./department/routes'),
         require('./role/routes'),
         require('./grant/routes'),
+        require('./default/routes')
       ])
     })
   }

@@ -20,21 +20,22 @@ var Index = React.createClass({
   },
   render: function() {
     const image_logo = {
-      background: "url('/img/photo.png') 0px 0px no-repeat",
+      backgroundImage: "url('/img/icon2/user_group.png')",
+      backgroundRepeat: "no-repeat",
       backgroundSize: 'contain',
-      paddingLeft: 124,
-      height: 96
+      width: 410,
+      height: 96,
+      marginTop: 40,
+      paddingLeft: 95
     }
     return (
-      <div className="ui one column grid" style={{ width: 720, margin: 'auto' }}>
-        <div className="column">
+      <div className="ui grid" style={{ padding: '0px 20px' }}>
+        <div className="sixteen wide column">
           <div className="ui centered grid">
-            <div className="ten wide column">
-              <div style={image_logo}>
-                <h1 className="ui header" style={{ textAlign: 'center' }}>
-                  {tr.translate('member.title_th')}<br/>{tr.translate('member.title_en')}
-                </h1>
-              </div>
+            <div className="column" style={image_logo}>
+              <h1 className="ui header" style={{ textAlign: 'center' }}>
+                {tr.translate('member.title_th')}<br/>{tr.translate('member.title_en')}
+              </h1>
             </div>
           </div>
         </div>

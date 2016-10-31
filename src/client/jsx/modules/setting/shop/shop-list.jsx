@@ -41,7 +41,7 @@ var ShopList = React.createClass({
         {name:'fax', title:'shop.fax', width:'120px'},
         {name:'actions', type:'actions', width:(2*28+8)+'px', render:function(row) {
           return (<div className="flex">
-            <FlexIcon to="setting.shop.edit" param={{id:row.id}} icon="create3" title="action.edit"></FlexIcon>
+            <FlexIcon to={'/setting/shop/shop_edit/'+row.id} icon="create3" title="action.edit"></FlexIcon>
             <FlexIcon icon="rubbish" title="action.delete" onClick={function(e) {this.doDelete(e, row.id)}.bind(this)}></FlexIcon>
           </div>);
         }.bind(this)}
@@ -54,7 +54,8 @@ var ShopList = React.createClass({
   },
 
   doShopNew: function() {
-    this.context.router.transitionTo('setting.shop.edit', {id:0});
+    // this.context.router.transitionTo('setting.shop.edit', {id:0});
+    this.props.history.pushState(null, '/setting/shop/shop_edit/0');
   },
 
   doDelete: function(e, id) {

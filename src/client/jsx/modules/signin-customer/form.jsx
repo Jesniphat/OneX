@@ -132,12 +132,16 @@ var SigninForm = React.createClass({
     var flds = this.getFields();
 
     var styleIcon = {
-      marginTop: 90
+      backgroundImage: "url('/img/icon2/user_group.png')",
+      height: 160,
+      backgroundSize: 140,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: '24px 22px'
     }
     return (
       <div className="signin-form flex" ref={this.didDOMReady}>
         <div className="box2" style={{ textAlign: 'center' }}>
-          <div className="sign-icon flaticon-dark55" style={styleIcon}></div>
+          <div style={styleIcon}></div>
         </div>
         <div className={'box3 lockable'+(this.state.isLock?' lock':'')}>
           <div className="lock"></div>

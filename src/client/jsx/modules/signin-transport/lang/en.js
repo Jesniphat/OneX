@@ -36,7 +36,7 @@ module.exports = {
       productGroup:'กลุ่มสินค้า',
       product:'เพิ่มสินค้า'
     },
-    customer_code: 'Code',
+    customer_code: 'Username',
     type: 'Customer Type',
     fullname: 'Fullname',
     nation: 'Customer Type',
@@ -46,7 +46,7 @@ module.exports = {
     prod_group_name: 'ชื่อกลุ่มสินค้า',
     prod_group_description: 'รายละเอียดกลุ่มสินค้า',
     add_new_customer: {
-      customer_code: 'Code',
+      customer_code: 'Username',
       tax_num: 'ID',
       member_code: 'Member Code',
       titel:'Title',

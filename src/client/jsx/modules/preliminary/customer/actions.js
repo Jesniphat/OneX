@@ -8,5 +8,6 @@ module.exports = require('reflux').createActions({
   'saveCustomers': {children:['done', 'error']},
   'editCustomers': {children:['done', 'error']},
   'deleteCustomers': {children:['done', 'error']},
-  'getCurrencyFromBase': {children:['done', 'error']}
+  'getCurrencyFromBase': {children:['done', 'error']},
+  'getCompanyProfile': {children:['done', 'error']}
 });

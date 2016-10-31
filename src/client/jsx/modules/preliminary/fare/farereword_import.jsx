@@ -48,12 +48,15 @@ var ProductGroup = React.createClass({
     systemActions.setPageHeader(tr.translate('preliminary.fare.reword_import'));
   },
   tableFare: [  //No. Group Code Effective Customer level Every Purchase Point
-    {name:'no', label:'preliminary.table.no', width:'48px'},
-    {name:'on_system', label:'preliminary.table.system'},
-    {name:'product_code', label:'preliminary.table.code'},
+    {name:'no', className: 'center', label:'preliminary.table.no', width:'48px'},
     {name:'effective', label:'preliminary.table.effective'},
-    {name:'point', label:'preliminary.table.point',width:'100px'},
-    {name:'pay', label:'preliminary.table.pay',width:'140px'}
+    {name:'point', className: 'right', label:'preliminary.table.point', width:'100px', render: function(row, index){
+      return helper.toMoney(row.point, 2);
+    }},
+    {name:'pay', className: 'right', label:'preliminary.table.pay', width:'100px', render: function(row, index){
+      return helper.toMoney(row.pay, 0);
+    }},
+    {name:'product_code', label:'preliminary.table.code'},
   ],
   render: function() {
 

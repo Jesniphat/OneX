@@ -203,8 +203,8 @@ router.post('/export', [bodyParser.json()], function(req, res) {
   // MAIN
   ////////////////////////////////////////////////////
   getRows().then(function() {
-    var rows = $scope.rows.d;
-    rows.unshift($scope.rows.f);
+    var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+    rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
     try {
       var buffer = xlsx.build([{name: "ListStaff", data: rows}]);
     } catch (e) {
@@ -325,7 +325,7 @@ router.post('/facetEdit', [bodyParser.json()], function(req, res) {
 });
 
 router.post('/save', [bodyParser.json()], function(req, res) {
-
+  console.log("data to save = ", req.body);
   oraConn.connect().then(function(oradb) {
   // validate
   var error = [];
@@ -460,11 +460,22 @@ router.post('/save', [bodyParser.json()], function(req, res) {
     db.beginTransaction()
       .then(checkDup)
       .then(function() {
+        // console.log("req bob",req.body);
         var all = [];
         if (data.id==0) {
-          return getNextId().then(insertData).then(getShop).then(InsStaff);
+          if(req.body.data.config == 'onex'){
+            return getNextId().then(insertData).then(getShop);
+          }else {
+            return getNextId().then(insertData).then(getShop).then(InsStaff);
+          }
+
         }
-        return updateData().then(updateDataOracle);
+
+        if(req.body.data.config == 'onex'){
+          return updateData();
+        } else {
+          return updateData().then(updateDataOracle);
+        }
       }).then(function() {
 
         db.commit();

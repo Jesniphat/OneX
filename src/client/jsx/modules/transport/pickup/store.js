@@ -109,6 +109,31 @@ var pickupList = Reflux.createStore({
     }else {
       pickupListActions.cancelPickup.error(res.error);
     }
+  },
+
+  onGenPrintPickup: function(req) {
+    ajaxActions.request('/api/bookingtransport/pickup/genPrintPickup', req, this.doneGenPrintPickup);
+  },
+  doneGenPrintPickup: function(res) {
+    console.log("doneGenPrintPickup = ", res);
+    if(res.status === true){
+      pickupListActions.genPrintPickup.done(res.data)
+    }else {
+      pickupListActions.genPrintPickup.error(res.error)
+    }
+  },
+
+  onGetAutoComplete: function(req) {
+    ajaxActions.request('/api/bookingtransport/pickup/getAutoComplete', req, this.doneGetAutoComplete);
+  },
+  doneGetAutoComplete: function(res) {
+    // console.log("AutoComplete res = ", res);
+    if(res.status == true){
+      pickupListActions.getAutoComplete.done(res.data);
+    }else {
+      console.log("error = ", res.error);
+      pickupListActions.getAutoComplete.error(res.error);
+    }
   }
 
 });

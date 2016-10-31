@@ -7,18 +7,19 @@ var dbo        = require('../../lib/db_ora');
 var router      = express.Router();
 var helper      = require('../../lib/helper');
 
-router.post('/search', function(req, res) {
-	dbo.query("SELECT COUNT(id) found FROM member WHERE id_card=:id_card", { id_card: req.body.id_card }).then(function(item){
+router.post('/search', [bodyParser.json()], function(req, res) {
+	dbo.query("SELECT COUNT(id) found FROM member WHERE code=:code", { code: req.body.code }).then(function(item){
+    console.log('item', req.body, item);
     res.send({ found: parseInt(item[0].found) > 0 });
   }).catch(function(e){
     res.send({ status:false, error:e });
   });
 });
 
-router.post('/list', function(req, res) {
+router.post('/list', [bodyParser.json()], function(req, res) {
 	var $scope = {};
 	var sql = "";
-	dbo.query("SELECT id, code, name FROM member WHERE id_card=:id_card", { id_card: req.body.id_card }).then(function(item){
+	dbo.query("SELECT id, code, name FROM member WHERE code=:code", { code: req.body.code }).then(function(item){
 		if(item.length == 0) throw 'id_card_unknow';
     $scope.member_id = item[0].id;
     $scope.member_code = item[0].code;
@@ -50,11 +51,11 @@ router.post('/list', function(req, res) {
   	}
 
     sql = "SELECT " +
-					"CONCAT(CONCAT(TO_CHAR(created_date, 'dd-mm-yyyy'), ' '),description) desc_, " +
-					"point, balance " +
-					"FROM member_point_transaction " +
-					"WHERE MEMBER_ID=:member_id AND " +
-					"created_date >= TO_DATE('"+($scope.year-1)+"-01-01', 'yyyy-mm-dd') ";
+					"TO_CHAR(t.created_date, 'dd-mm-yyyy') created, t.description, s.name, " +
+					"t.point, t.balance " +
+					"FROM member_point_transaction t inner join shop s on t.shop_id = s.id " +
+					"WHERE t.MEMBER_ID=:member_id AND " +
+					"t.created_date >= TO_DATE('"+($scope.year-1)+"-01-01', 'yyyy-mm-dd') ORDER BY t.created_date ASC";
     return dbo.query(sql, { member_id: $scope.member_id });
   }).then(function(item){
 		$scope.status = true;

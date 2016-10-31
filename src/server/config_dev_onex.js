@@ -1,4 +1,5 @@
 module.exports = {
+  // console.log("test");
   color: 'default',
   server: {
     port: 9000
@@ -13,7 +14,7 @@ module.exports = {
       port: 33175,// Port number for database connection.
       user: 'ss_onex',// Database user.
       password: 'onex!4555',// Password for the above database user.
-      database: 'ss_onex',// Database name.
+      database: 'test',// Database name.
       checkExpirationInterval: 900000,// How frequently expired sessions will be cleared; milliseconds.
       expiration: 15*60*1000,// The maximum age of a valid session; milliseconds.
       autoReconnect: true,// Whether or not to re-establish a database connection after a disconnect.
@@ -35,16 +36,16 @@ module.exports = {
   db: {
     host: '202.129.206.254',
     port: 33175,
-    schema: 'ss_onex',
+    schema: 'test',
     user: 'ss_onex',
     pass: 'onex!4555',
     debug: false,
-    connLimit: 100,
+    connLimit: 5,
     charset: 'utf8_unicode_ci'
   },
   oracledb: {
     param: {
-      user          : "siamchai_stock",
+      user          : "tcradio_stock",
       password      : ":ug8up;",
       connectString : "192.168.10.4/ORCL",
       poolMax: 20,
@@ -54,4 +55,16 @@ module.exports = {
     },
     maxRows : 100000
   }
+  // oracledb: {
+  //   param: {
+  //     user          : "siamchai_stock",
+  //     password      : ":ug8up;",
+  //     connectString : "192.168.10.4/ORCL",
+  //     poolMax: 20,
+  //     poolMin: 2,
+  //     poolIncrement: 2,
+  //     poolTimeout: 30
+  //   },
+  //   maxRows : 100000
+  // }
 }

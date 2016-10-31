@@ -17,8 +17,8 @@ var List = React.createClass({
   ],
 
   getInitialState:function() {
-    var id_card = this.props.params.member;
-    actions.getList({ id_card: id_card });
+    var code = this.props.params.member;
+    actions.getList({ code: code });
     return {
       data:{ list:[] }
     };
@@ -39,7 +39,9 @@ var List = React.createClass({
     var PointList = this.state.data.list.map(function(item){
       return (
         <tr>
-          <td>{item.desc_}</td>
+          <td width="95">{item.created}</td>
+          <td width="10%">{item.name}</td>
+          <td>{item.description}</td>
           <td style={style_money}>{item.point}</td>
           <td style={style_money}>{item.balance}</td>
         </tr>
@@ -62,7 +64,7 @@ var List = React.createClass({
         <table className="ui single line table">
           <thead>
             <tr>
-              <th>Description</th>
+              <th colSpan="3">Description</th>
               <th width="100" style={style_money}>Points</th>
               <th width="100" style={style_money}>Balance</th>
             </tr>

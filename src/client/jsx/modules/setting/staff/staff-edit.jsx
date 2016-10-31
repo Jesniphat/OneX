@@ -29,11 +29,12 @@ var resetData = {
   display_name:'',
   email:'',
   mobile:'',
-  department_id:0,
-  shop_id:0,
+  department_id:17,
+  shop_id:278,
   pass:'',
   pass2:'',
-  is_active:'YES'
+  is_active:'YES',
+  config: ''
 };
 
 var StaffEdit = React.createClass({
@@ -154,7 +155,9 @@ var StaffEdit = React.createClass({
         tabIndex: 8
       },
     };
-    var id = parseInt(this.context.router.getCurrentParams().id);
+    console.log("Props id = ", this.props.params.id);
+    var id = this.props.params.id;
+    // var id = parseInt(this.context.router.getCurrentParams().id);
     var tabIndex = 8;
     if (id==0) {
       fields.pass = {
@@ -203,7 +206,7 @@ var StaffEdit = React.createClass({
   componentDidMount: function() {
     staffActions.facetEdit();
     if (this.state.id) {
-      staffActions.getById(this.context.router.getCurrentParams().id);
+      staffActions.getById(this.props.params.id);
     }
 
     // actionPanelActions.setShortcut([]);
@@ -223,6 +226,7 @@ var StaffEdit = React.createClass({
   },
 
   onFacetEditDoneAction: function(data) {
+    console.log("onFacetEditDoneAction = ", data);
     if (data.department != null) {
       this.state.fields['department_id'].list = data.department
     }
@@ -437,9 +441,9 @@ var StaffEdit = React.createClass({
           <FlexForm ref="staffForm" fields={this.state.fields} data={this.state.data}>
             <div className="box8 flex">
               <div className="box6">
-                <div className="box6 flex">
+                <div className="box6 flex flex-form">
                   <div className="panel3">
-                    <FlexTextInput ref="user" field={this.state.fields.user} data={this.state.data} onChange={this.handleChange}/>
+                    <FlexTextInput style={{width:"256px"}} ref="user" field={this.state.fields.user} data={this.state.data} onChange={this.handleChange}/>
                   </div>
                   <div className="panel3">
                     <FlexTextInput ref="user" field={this.state.fields.suffix_barcode} data={this.state.data} onChange={this.handleChange}/>

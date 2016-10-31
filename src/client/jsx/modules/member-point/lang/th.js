@@ -1,15 +1,23 @@
 module.exports = {
-  signin: {
-    title: 'ลงชื่อเข้าใช้ระบบ',
-    user: 'ชื่อผู้ใช้',
-    pass: 'รหัสผ่าน',
-    forget: 'ลืมรหัสผ่าน?',
-    remember: 'จำชื่อผู้ใช้ไว้',
-    act_signin: 'เข้าสู่ระบบ',
-    signin_success:'เข้าสู่ระบบสำเร็จ',
-    err_invalid_user:'ไม่พบชื่อผู้ใช้ กรุณาตรวจสอบ',
-    err_invalid_pass:'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบ',
-    err_account_disabled:'ชื่อผู้ใช้ถูกระงับการใช้งานชั่วคราว กรุณาติดต่อผู้ดูแล',
-    err_unknown:'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง'
+  member: {
+    title_th: 'ตรวจสอบคะแนนสะสม',
+    title_en: 'Check Member Point',
+  },
+  text: {
+    search: 'Member Code:'
+  },
+  button: {
+    search: 'Search',
+    back: 'Back',
+  },
+  list: {
+    code: 'Code :',
+    name: 'Name :',
+    point: 'Points :',
+    expire_date: 'First Expire Date :',
+    expire_amount: 'Expire Amount :',
+    th_desc: 'Description',
+    th_point: 'Point(s)',
+    th_balance: 'Balance'
   }
 };

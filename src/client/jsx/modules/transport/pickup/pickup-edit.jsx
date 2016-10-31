@@ -1,4 +1,6 @@
 var React       = require('react');
+import AutoComplete from 'material-ui/lib/auto-complete';
+import MenuItem from 'material-ui/lib/menus/menu-item';
 var Reflux      = require('reflux');
 var tr          = require('counterpart');
 var T           = require('react-translate-component');
@@ -19,6 +21,20 @@ var FlexTextInput = widget.FlexTextInput;
 var FlexButton    = widget.FlexButton;
 var FlexDataTable = widget.FlexDataTable;
 var FlexCheckbox  = widget.FlexCheckbox;
+
+var divauto = {
+    height:"30px",
+    width:"98%",
+    border:"1px solid lightgray",
+    borderRadius:'4px',
+    padding:"3px 3px 0px 3px",
+    fontSize:'14px'
+};
+var textFieldsNonHr = {
+    height:"100%",
+    width:"100%",
+    fontSize:'14px'
+};
 
 var s_data_reset = {
   booking_no:"",
@@ -43,6 +59,10 @@ var Screen = React.createClass({
     Reflux.listenTo(actions.updatePickup.error, 'onUpdatePickupErrorAction'),
     Reflux.listenTo(actions.getPU.done, 'onGetPUDoneAction'),
     Reflux.listenTo(actions.getPU.error, 'onGetPUErrorAction'),
+    Reflux.listenTo(actions.genPrintPickup.done, 'onGenPrintPickupDoneAction'),
+    Reflux.listenTo(actions.genPrintPickup.error, 'onGenPrintPickupErrorAction'),
+    Reflux.listenTo(actions.getAutoComplete.done, 'onGetAutoCompleteDoneAction'),
+    Reflux.listenTo(actions.getAutoComplete.error, 'onGetAutoCompleteErrorAction')
   ],
 
   contextTypes: {
@@ -63,12 +83,15 @@ var Screen = React.createClass({
       booking_no: {
         id:'booking_no',
         type:'text',
-        label:'pickupEdit.booking_no'
+        label:'pickupEdit.booking_no',
+        autofocus:true,
+        tabIndex:1
       },
       customer: {
         id:'customer',
         type:'text',
-        label:'pickupEdit.customer'
+        label:'pickupEdit.customer',
+        tabIndex:2
       },
       pickup_no: {
         id:'pickup_no',
@@ -79,15 +102,18 @@ var Screen = React.createClass({
       pickup_date_set: {
         id:'pickup_date_set',
         type: 'date',
-        label:'pickupEdit.pickup_date_set'
+        label:'pickupEdit.pickup_date_set',
+        tabIndex:6
       },
       waybill: {
         id:'waybill',
         type:'text',
-        label:'pickupEdit.waybill'
+        label:'pickupEdit.waybill',
+        tabIndex:3
       },
       pickup_date: {
         id:'pickup_date',
+        tabIndex:4,
         type:'date',
         label:'pickupEdit.pickup_date'
       },
@@ -100,25 +126,29 @@ var Screen = React.createClass({
       driver: {
         id:'driver',
         type:'text',
-        label:'pickupEdit.driver'
+        label:'pickupEdit.driver',
+        tabIndex:7
       },
       district: {
         id:'district',
         type:'text',
-        label:'pickupEdit.district'
+        label:'pickupEdit.district',
+        tabIndex:5
       },
       remark: {
         id:'remark',
         type:'text',
-        label:'pickupEdit.remark'
+        label:'pickupEdit.remark',
+        tabIndex:8
       },
-      status: {
-        id:'status',
-        list:[
-          {value:'active', text:tr.translate('pickupEdit.status.active')},
-          {value:'receipted', text:tr.translate('pickupEdit.status.receipted')},
-          {value:'cancel', text:tr.translate('pickupEdit.status.cancel')}
-        ],
+      display_status: {
+        id:'display_status',
+        // list:[
+        //   {value:'active', text:tr.translate('pickupEdit.status.active')},
+        //   {value:'receipted', text:tr.translate('pickupEdit.status.receipted')},
+        //   {value:'cancel', text:tr.translate('pickupEdit.status.cancel')}
+        // ],
+        type:'text',
         readonly:true
       }
     };
@@ -213,13 +243,17 @@ var Screen = React.createClass({
         driver:'',
         remark:'',
         status:'active',
+        display_status:'ACTIVE',
         booking_qty:0,
-        booking_item_qty:0
+        booking_item_qty:0,
+        vehicle:''
       },
       bookingBox:[],
       puItems:[],
       prevItems:{},
-      prev_status:'active'
+      prev_status:'active',
+      vehicleList:[],
+      driverList:[]
     };
   },
 
@@ -228,6 +262,8 @@ var Screen = React.createClass({
     if (this.state.pu.id != '0' || this.state.pu.id != 0) {
       actions.getPU(this.state.pu.id);
     }
+    actions.getAutoComplete();
+    // $("#pickup_date").attr("tabIndex","4");
   },
 
   handleSearchChange: function(id, value) {
@@ -290,18 +326,21 @@ var Screen = React.createClass({
 
   onGetPUDoneAction: function(result){
     var prevItems = {};
-    console.log('results:',result);
+    // console.log('onGetPUDoneAction :',result);
     result.pu_items.forEach(function(item) {
       prevItems[item.id] = true;
     });
 
-    console.log('Status2 : ' , result.pu.status)
+    // console.log('Status2 : ' , result.pu.status)
     this.setState({
       pu: result.pu,
       puItems: result.pu_items,
       prevItems: prevItems,
       prev_status: result.pu.status
     });
+    this.refs.vehicle.setValue(this.state.pu.vehicle);
+    this.refs.driver.setValue(this.state.pu.driver);
+    // console.log("pu state = ", this.state.pu);
   },
 
   onGetPUErrorAction: function(error){
@@ -428,10 +467,16 @@ var Screen = React.createClass({
       this.refs.driver.setFocus();
       return;
     }
+    if (this.state.pu.vehicle == ''){
+      toasterActions.pop({type:'warning',message:'กรุณาระบุทะเบียนรถ'});
+      // this.refs.vehicle.setFocus();
+      return;
+    }
     var param = {
       pu: this.state.pu,
       pu_items: this.state.puItems
     };
+    // console.log('param = ', param);
     if (this.state.pu.id == 0 || this.state.pu.id == '0'){
       console.log("save data = ", param);
       actions.savePickup(param);
@@ -442,13 +487,51 @@ var Screen = React.createClass({
 
   },
 
+  canPrint: function() {
+    if (this.state.pu.id == 0 || this.state.pu.id == '0') {
+      return true;
+    }else {
+      return false;
+    }
+  },
+
+  doPrint:function(){
+    if (this.state.pu.id == 0 || this.state.pu.id == '0'){
+      console.log("Don't print ");
+      return;
+    } else {
+      console.log("doprint");
+      // /output/pickup/pickup_40.pdf
+      window.open("/output/pickup/pickup_" + this.state.pu.id + ".pdf");
+      // actions.printPickup(param);
+      // actions.testprintPickup({pickup_id:this.state.pu.id});
+    }
+  },
+
+  onGenPrintPickupDoneAction: function(res) {
+    if (this.state.pu.id == 0 || this.state.pu.id == '0'){
+      window.open(res.pdfFile);
+    } else {
+      console.log("Just Update.");
+    }
+  },
+
+  onGenPrintPickupErrorAction: function(error) {
+    console.log("error = ", error);
+    toasterActions.pop({
+      type:'warning',
+      message:"Can't gen report."
+    });
+  },
+
   onSavePickupDoneAction: function(data){
     console.log("save complete data = ", data);
-    this._resetData();
     toasterActions.pop({
       type:'success',
       message:'Save pickup complete.'
     });
+    actions.genPrintPickup({pickup_id:data.pickup_id});
+    this._resetData();
   },
 
   onSavePickupErroreAction: function(error){
@@ -460,6 +543,7 @@ var Screen = React.createClass({
   },
 
   onUpdatePickupDoneAction: function(data) {
+    actions.genPrintPickup({pickup_id:this.state.pu.id});
     this._resetData();
     toasterActions.pop({
       type:'success',
@@ -499,6 +583,37 @@ var Screen = React.createClass({
       prevItems:{},
       prev_status:'active'
     });
+  },
+
+  onGetAutoCompleteDoneAction: function(res){
+    console.log("Getautocomplete done = ", res);
+    this.setState({
+      driverList: res.driver,
+      vehicleList: res.vehicle
+    })
+  },
+
+  onGetAutoCompleteErrorAction : function(error){
+    console.log("getAutoComplete error = ", error);
+    toasterActions.pop({type:'warning',message:"Can't get autocomplete data"});
+  },
+
+  handleChangeAutocomVehicle: function(data,other) {
+    // console.log("data = ", a);
+    // console.log("other = ", b);
+    this.state.pu.vehicle = data;
+    this.setState({
+      pu: this.state.pu
+    })
+  },
+
+  handleChangeAutocomDriver: function(data,other) {
+    // console.log("data = ", a);
+    // console.log("other = ", b);
+    this.state.pu.driver = data;
+    this.setState({
+      pu: this.state.pu
+    })
   },
 
   render: function() {
@@ -591,8 +706,8 @@ var Screen = React.createClass({
           </div>
           <div className="box2">
             <div className="panel2 flex">
-              <FlexDropdown
-                field={this.fields.status}
+              <FlexTextInput
+                field={this.fields.display_status}
                 data={this.state.pu}
                 onChange={this.handlePuChange}
                 />
@@ -623,12 +738,22 @@ var Screen = React.createClass({
                 onChange={this.handlePuChange}
                 />
               <div style={{width:'8px'}} className="no-shrink"></div>
-              <FlexTextInput
+              <div style={divauto}>
+              <AutoComplete
                 ref="driver"
-                field={this.fields.driver}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-                />
+                id="driver"
+                hintText="driver"
+                tabIndex={7}
+                filter={AutoComplete.noFilter}
+                dataSource={this.state.driverList}
+                style={textFieldsNonHr}
+                underlineShow={false}
+                hintStyle={{bottom:'0px',fontSize:'14px',textAlign:'right'}}
+                onUpdateInput={this.handleChangeAutocomDriver}
+                onNewRequest={this.handleChangeAutocomDriver}
+                filter={AutoComplete.caseInsensitiveFilter}
+              />
+              </div>
             </div>
           </div>
           <div className="box2">
@@ -665,6 +790,23 @@ var Screen = React.createClass({
                 data={this.state.pu}
                 onChange={this.handlePuChange}
               />
+              <div style={{width:'8px'}} className="no-shrink"></div>
+              <div style={divauto}>
+              <AutoComplete
+                ref="vehicle"
+                id="vehicle"
+                hintText="vehicle"
+                tabIndex={9}
+                filter={AutoComplete.noFilter}
+                dataSource={this.state.vehicleList}
+                style={textFieldsNonHr}
+                underlineShow={false}
+                hintStyle={{bottom:'0px',fontSize:'14px',textAlign:'right'}}
+                onUpdateInput={this.handleChangeAutocomVehicle}
+                onNewRequest={this.handleChangeAutocomVehicle}
+                filter={AutoComplete.caseInsensitiveFilter}
+              />
+              </div>
             </div>
           </div>
           <div className="box2">
@@ -672,6 +814,7 @@ var Screen = React.createClass({
               <FlexButton icon="printer88"
                 label="pickupEdit.print"
                 onClick={this.doPrint}
+                disabled={this.canPrint()}
               />
             </div>
           </div>

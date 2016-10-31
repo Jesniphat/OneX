@@ -5,6 +5,7 @@ module.exports = require("reflux").createActions({
   'iniModule': {children:['done', 'error']},
   'requestSignOut':{},
   'signout': {children:['done', 'error']},
+  'signoutTransport': {children:['done', 'error']},
   'ping': {children:['done', 'error']},
   'setTheme': {},
   'updateTopPanel': {},

@@ -22,7 +22,7 @@ var FlexRadioGroup = widgets.FlexRadioGroup;
 var FlexButton    = widgets.FlexButton; //require('../../../widgets/flex-button.jsx');
 
 //var customerAction = require('./actions');
-var pickupListActions = require('./actions');
+var intransitListActions = require('./actions');
 var ReFlux    = require('reflux');
 
 var PickupList = React.createClass({
@@ -30,8 +30,8 @@ var PickupList = React.createClass({
       router: React.PropTypes.func
     },
   mixins:[
-    // ReFlux.listenTo(pickupListActions.cancelBooking.done,'onCancelBookingDoneAction'),
-    // ReFlux.listenTo(pickupListActions.cancelBooking.error,'onCancelBookingErrorAction')
+    // ReFlux.listenTo(intransitListActions.cancelBooking.done,'onCancelBookingDoneAction'),
+    // ReFlux.listenTo(intransitListActions.cancelBooking.error,'onCancelBookingErrorAction')
   ],
   getInitialState: function() {
 //    var shops = system.acl.getShopAcl();
@@ -56,21 +56,21 @@ var PickupList = React.createClass({
         // current_status: opt.current_status
       },
       fields: [
-        {name:'pickup_no', title:'transport.pickup_no'},
-        {name:'pickup_date', title:'transport.pickup_date'},
-        {name:'city_district', title:'transport.city_district'},//, width:'80px'
-        {name:'prepare_by', title:'transport.prepare_by'},
-        {name:'driver', title:'transport.driver'},
-        {name:'plan_qty', title:'transport.plan_qty'},
-        {name:'pickup_qty', title:'transport.pickup_qty'},
-        {name:'status', title:'transport.status'},
+        {name:'intransit_no', title:'intransit_headtable.intransit_no'},
+        {name:'intransit_date', title:'intransit_headtable.date'},
+        {name:'from', title:'intransit_headtable.from'},//, width:'80px'
+        {name:'to', title:'intransit_headtable.to'},
+        {name:'prepare_by', title:'intransit_headtable.prepare_by'},
+        {name:'intransit_qty', title:'intransit_headtable.plan_qty'},
+        {name:'accepted_qty', title:'intransit_headtable.intransit_qty'},
+        {name:'status', title:'intransit_headtable.status'},
         {name:'actions', type:'actions', width:(2*28+8)+'px', render:function(row) {
           var e = function() {
             this.onLinkToEdit(row.id)
           }.bind(this);
           return (<div className="flex">
             <div onClick={e}>
-              <FlexIcon icon="bed24" title="action.select"></FlexIcon>
+              <FlexIcon icon="create3" title="action.select"></FlexIcon>
             </div>
           </div>);
         }.bind(this)},
@@ -106,7 +106,7 @@ var PickupList = React.createClass({
         return;
       }
       console.log('DELETE');
-      pickupListActions.cancelBooking(row);
+      intransitListActions.cancelBooking(row);
     });
   },
 
@@ -129,11 +129,11 @@ var PickupList = React.createClass({
       <div className="layout-panel content-page">
         <div className="content-header boxf flex">
           <div className="panelf can-grow">
-            <T content="transport.title.headPickupList" component="h3" />
+            <T content="transport.title.headIntransitList" component="h3" />
           </div>
           <div className="panel2 no-shrink flex-form">
             <FlexButton
-              label="transport.title.newPickup"
+              label="transport.title.newIntransit"
               icon="add184"
               default={true}
               onClick={this.newPickup}
@@ -147,12 +147,12 @@ var PickupList = React.createClass({
               <div>
                 <FlexGrid
                     ref="grid"
-                    id="pickup_list"
-                    listAction={pickupListActions.listPickup}
-                    exportAction={pickupListActions.exportPickupList}
+                    id="intransit_list"
+                    listAction={intransitListActions.listIntransit}
+                    exportAction={intransitListActions.exportPickupList}
                     fields={this.state.fields}
                     pk="id"
-                    sortBy="pickup_no"
+                    sortBy="intransit_no"
                     sortDir="ASC"
                     limit={50}
                     checkbox={false}

@@ -13,7 +13,7 @@ const routeConfig = {
   getChildRoutes(location, cb) {
     require.ensure([], (require) => {
       cb(null, [
-        {path:':id', component: require('./staff-edit.jsx')}
+        {path:'staff_new/:id', component: require('./staff-edit.jsx')}
       ])
     })
   }

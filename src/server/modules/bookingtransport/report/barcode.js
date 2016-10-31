@@ -108,7 +108,7 @@ module.exports = {
           x1:0, y1:120, x2:320, y2:120,
           lineWidth:1
         },
-        
+
         {
           type:'line',
           x1:0, y1:120, x2:0, y2:188,
@@ -155,7 +155,7 @@ module.exports = {
           x1:0, y1:188, x2:320, y2:188,
           lineWidth:1
         },
-        
+
         {
           type:'line',
           x1:0, y1:188, x2:0, y2:217,
@@ -213,7 +213,7 @@ module.exports = {
           x1:0, y1:217, x2:320, y2:217,
           lineWidth:1
         },
-        
+
         {
           type:'line',
           x1:0, y1:217, x2:0, y2:247,
@@ -243,7 +243,7 @@ module.exports = {
           x1:0, y1:247, x2:320, y2:247,
           lineWidth:1
         },
-        
+
         {
           type:'line',
           x1:0, y1:247, x2:0, y2:317,
@@ -279,7 +279,7 @@ module.exports = {
           x1:0, y1:317, x2:320, y2:317,
           lineWidth:1
         },
-        
+
         {
           type:'line',
           x1:0, y1:317, x2:0, y2:387,

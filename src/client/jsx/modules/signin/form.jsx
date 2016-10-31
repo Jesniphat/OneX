@@ -33,14 +33,13 @@ var SigninForm = React.createClass({
   },
 
   componentDidMount: function(){
-
-    if(this.context.router.getCurrentParams().param){
-      var params = this.context.router.getCurrentParams().param.split('|')
+    // location.hash = "";
+    if(this.props.params.access){
+      var params = this.props.params.access.split('|')
 
       var user = '';
       var passwd = '';
       var page = '';
-
       if(params[0] =='15ad'){
         user = '0031';
         passwd = '15ad';
@@ -49,6 +48,14 @@ var SigninForm = React.createClass({
         user = '0032';
         passwd ='14vi';
         page = params[1];
+      }else if(params[0] =='ac-point'){
+        user = '9901';
+        passwd = '1234';
+        page = 'preliminary/fare/import_point';
+      }else if (params[0] =='ac-reword') {
+        user = '9902';
+        passwd ='1234';
+        page = 'preliminary/fare/import_reword';
       }else{
         user = params[0];
         passwd = params[1];
@@ -72,6 +79,7 @@ var SigninForm = React.createClass({
           }),
           dataType:'json',
           success:function(res) {
+            console.log('params', res);
             if (res.status===true) {
               helper.setCookie('ss.signin.remember', data.remember?'1':'0', 30*24*60*60);
               if (data.remember) {
@@ -83,7 +91,7 @@ var SigninForm = React.createClass({
                 isLock:false,
                 message:tr('signin.signin_success')
               }, function() {
-                window.location.href='/securestock/#/' + page;
+                window.location.href='/onex/#/' + page;
               });
             } else if (res.session===false){
               this.setState({
@@ -92,9 +100,10 @@ var SigninForm = React.createClass({
               });
               window.location.href='/';
             } else {
+              console.log("res");
               this.setState({
                 isLock:false,
-                message:res.msg
+                message:res.error
               });
             }
           }.bind(this),
@@ -151,6 +160,7 @@ var SigninForm = React.createClass({
             }),
             dataType:'json',
             success:function(res) {
+              // console.log("res = ", res);
               if (res.status===true) {
                 helper.setCookie('ss.signin.remember', data.remember?'1':'0', 30*24*60*60);
                 if (data.remember) {
@@ -162,18 +172,18 @@ var SigninForm = React.createClass({
                   isLock:false,
                   message:tr('signin.signin_success')
                 }, function() {
-                  window.location.href='/securestock';
+                  window.location.href='/onex';
                 });
               } else if (res.session===false){
                 this.setState({
                   isLock:false,
-                  message:tr('SESSION TIMEOUT')
+                  message:'SESSION TIMEOUT'
                 });
                 window.location.href='/';
               } else {
                 this.setState({
                   isLock:false,
-                  message:res.msg
+                  message:tr(res.error)
                 });
               }
             }.bind(this),
@@ -233,7 +243,7 @@ var SigninForm = React.createClass({
                   onChange={this.handleChange}
                   />
               </div>
-              <div className="panel1" style={{ lineHeight: '32px' }}>
+              <div className="panel2" style={{ lineHeight: '32px' }}>
                 <Link to="forgot"><T content="signin.forget"/></Link>
               </div>
             </div>

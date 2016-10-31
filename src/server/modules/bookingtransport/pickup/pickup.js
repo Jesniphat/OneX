@@ -15,16 +15,16 @@ var xlsx        = require('node-xlsx');
 var pickupFields = {
   id:{name:'id'},
   pickup_no:{name:'pickup_no'},
-  pickup_date:{pickup_date:'pickup_date'},
-  booking_qty:{booking_qty:'booking_qty'},
-  city_district:{city_district:'city_district'},
-  prepare_by:{prepare_by:'prepare_by'},
-  vehicle:{vehicle:'vehicle'},
-  driver:{driver:'driver'},
-  plan_qty:{plan_qty:'plan_qty'},
-  pickup_qty:{pickup_qty:'pickup_qty'},
-  status:{status:'status'},
-  remark_status:{remark_status:'remark_status'}
+  pickup_date:{name:'pickup_date'},
+  booking_qty:{name:'booking_qty'},
+  city_district:{name:'city_district'},
+  prepare_by:{name:'prepare_by'},
+  vehicle:{name:'vehicle'},
+  driver:{name:'driver'},
+  plan_qty:{name:'plan_qty'},
+  pickup_qty:{name:'pickup_qty'},
+  status:{name:'status'},
+  remark_status:{name:'remark_status'}
 
 };
 
@@ -36,7 +36,11 @@ router.post('/listPickUp',[bodyParser.json()], function(req, res){
   var db = conn.connect();
   var $scope = {};
 
-  var mainQuery = "SELECT * FROM pickup WHERE id > 0 ";
+  var mainQuery = "SELECT id, pickup_no, pickup_date, booking_qty, city_district, prepare_by, "
+                + "vehicle, driver, plan_qty, pickup_qty, "
+                + "UPPER(status) as status, "
+                + "remark_status, created_at, created_by, updated_at, updated_by "
+                + "FROM pickup WHERE id > 0 ";
   //console.log("list Booking = ", mainQuery);
   var cond = [];
   var hasJoin = false;
@@ -103,7 +107,7 @@ router.post('/listPickUp',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -147,7 +151,7 @@ router.post('/getSearchBookingWait', function(req, res) {
           + "FROM booking b "
           + "INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
           + "INNER JOIN booking_detail bd ON b.id = bd.booking_id "
-          + "INNER JOIN pickup_detail pd ON b.id <> pd.booking_id "
+          + "LEFT JOIN pickup_detail pd ON b.id <> pd.booking_id "
           + "WHERE b.status = 'WAIT_ASSIGN' "
           + "AND b.id NOT IN (SELECT booking_id FROM pickup_detail WHERE pickup_detail_status = 'active') ";
 
@@ -168,7 +172,7 @@ router.post('/getSearchBookingWait', function(req, res) {
   }
   // console.log("SQL = ", sql);
   sql += "GROUP BY b.id ";
-  // console.log("SQL = ", sql);
+  console.log("SQL = ", sql);
   db.query(sql, {}).then(function(data){
     res.send({ status:true, data: data });
   }).catch(function(e){
@@ -188,7 +192,7 @@ router.post('/getPU', [bodyParser.json()], function(req, res) {
 
   var getPU = function() {
     var sql = "SELECT pu.*, st.display_name staff, st.id staff_id, st.display_name prepare_by, "
-      + "pu.remark_status remark, pu.pickup_date pickup_date_set "
+      + "pu.remark_status remark, pu.pickup_date pickup_date_set, UPPER(pu.status) display_status "
       + "FROM pickup pu LEFT JOIN staff st "
       + "  ON pu.prepare_by=st.id "
       + "WHERE pu.id=:id ";
@@ -293,8 +297,8 @@ router.post('/savePickup', [bodyParser.json()], function(req, res) {
 
     var sql = "insert into pickup(pickup_no,pickup_date,booking_qty,city_district,prepare_by,"
             + "vehicle,driver,plan_qty,pickup_qty,status,remark_status,created_by,updated_by) "
-            + "values(:pickup_no, :pickup_date_set, :booking_qty, :country_origin, :staff_id, "
-            + "'123', :driver, :booking_item_qty, '0', 'active', :remark,:staff_id,:staff_id) ";
+            + "values(:pickup_no, :pickup_date_set, :booking_qty, :country_origin, :staff, "
+            + ":vehicle, :driver, :booking_item_qty, '0', 'active', :remark,:staff_id,:staff_id) ";
 
     return db.query(sql, req.body.pu).then(function(res) {
       $scope.pickup_id = res.insertId;
@@ -410,7 +414,7 @@ router.post('/updatePickup', [bodyParser.json()], function(req, res) {
     console.log('updatePickup');
     console.log('pick up date = ',req.body.pu);
     var sql = "UPDATE pickup SET pickup_date=:pickup_date_set, booking_qty=:booking_qty, "
-            + "vehicle = '1', driver=:driver, plan_qty=:booking_item_qty, "
+            + "vehicle=:vehicle, driver=:driver, plan_qty=:booking_item_qty, "
             + "status = 'active', remark_status=:remark,updated_by=:staff_id "
             + "WHERE id=:id";
 
@@ -601,7 +605,7 @@ router.post('/savePickupReceipt', [bodyParser.json()], function(req, res) {
 
   var updatePickupItem = function(){
     console.log("updatePickupItem = ", $scope.itemIdStr);
-    var sql = "UPDATE pickup_item SET `status` = 'receipted' WHERE pickup_id = '" + $scope.pickup_id
+    var sql = "UPDATE pickup_item SET `status` = 'received' WHERE pickup_id = '" + $scope.pickup_id
             + "' AND id IN (" + $scope.itemIdStr + ")";
     console.log("sql = ", sql);
     return db.query(sql, {}).then(function(res) {
@@ -612,7 +616,7 @@ router.post('/savePickupReceipt', [bodyParser.json()], function(req, res) {
   var updatePickupItemC = function(){
     console.log("updatePickupItem = ", $scope.itemIdStr);
     var sql = "UPDATE pickup_item SET `status` = 'exception' WHERE pickup_id = '" + $scope.pickup_id
-            + "' AND id NOT IN (" + $scope.itemIdStr + ") AND `status` <> 'receipted'";
+            + "' AND id NOT IN (" + $scope.itemIdStr + ") AND `status` <> 'received'";
     console.log("sql = ", sql);
     return db.query(sql, {}).then(function(res) {
       console.log("pickup_item update = ", res);
@@ -632,7 +636,7 @@ router.post('/savePickupReceipt', [bodyParser.json()], function(req, res) {
     console.log("getUpdateBookingData");
     var sql = "select pi.pickup_id, pi.booking_id, count(pi.item_id) picup_item_qty, b.item_qty "
             + "from pickup_item pi inner join booking b on pi.booking_id = b.id "
-            + "where pi.`status` = 'receipted' and pi.pickup_id = '"+ $scope.pickup_id +"' "
+            + "where pi.`status` = 'received' and pi.pickup_id = '"+ $scope.pickup_id +"' "
             + "group by pi.booking_id";
     console.log("sql = ", sql);
     return db.query(sql, {}).then(function(res) {
@@ -656,7 +660,8 @@ router.post('/savePickupReceipt', [bodyParser.json()], function(req, res) {
   var updateBookingList = function(i) {
     console.log("updateBookingList");
     var sql = "UPDATE booking, pickup_detail SET booking.status = 'INPROCESS', "
-            + "pickup_detail.pickup_detail_status = 'receipted' "
+            + "pickup_detail.pickup_detail_status = 'received', "
+            + "booking.accepted_origin_date = NOW() "
             + "WHERE booking.id = pickup_detail.booking_id "
             + "AND pickup_detail.pickup_id = '" + $scope.updateBookingData[i].pickup_id + "' "
             + "AND pickup_detail.booking_id = '" + $scope.updateBookingData[i].booking_id + "' "
@@ -671,7 +676,7 @@ router.post('/savePickupReceipt', [bodyParser.json()], function(req, res) {
     console.log("getPickupData");
     var sql = "select p.id pickup_id, p.pickup_no, p.plan_qty, count(pi.item_no) pickup_qty "
             + "from pickup p inner join pickup_item pi on p.id = pi.pickup_id "
-            + "where pi.`status` = 'receipted' AND p.id = '" + $scope.pickup_id +"' "
+            + "where pi.`status` = 'received' AND p.id = '" + $scope.pickup_id +"' "
             + "group by p.id, p.pickup_no, p.plan_qty";
     console.log("sql = ", sql);
 
@@ -685,7 +690,7 @@ router.post('/savePickupReceipt', [bodyParser.json()], function(req, res) {
     console.log("updatePickupByData");
     var setStatus = "active";
     if($scope.updatePickupData.plan_qty == $scope.updatePickupData.pickup_qty){
-      setStatus = "receipted";
+      setStatus = "received";
     }else {
       setStatus = "exception";
     }
@@ -786,5 +791,127 @@ router.post('/cancelPickup', [bodyParser.json()], function(req, res) {
 
 });
 
+////////////////////////////////////////////////////////////////////////////////
+////// genPrintPickup /////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/genPrintPickup', [bodyParser.json()], function(req, res) {
+  var db = conn.connect();
+  var $scope = {};
+  console.log("req.body = ", req.body);
+  var getPickupReportData = function() {
+    var sql = "SELECT DATE_FORMAT(p.pickup_date,'%d %b %Y') time,b.pickup_place, p.item_qty qty, "
+            + "CONCAT(ps.firstname, ' ', ps.lastname) contact_name, "
+            + "CONCAT('PICK UP SCHEDULE ON ', DATE_FORMAT(p.pickup_date,'%d %b %Y')) pickup_schedule, "
+            + "CONCAT('Driver name : ',ph.driver,' | Plate number : A1-8888') driver_plate "
+            + "FROM pickup_detail p "
+            + "JOIN booking b ON p.booking_id = b.id "
+            + "JOIN customer c ON b.customer_id = c.id "
+            + "JOIN person ps ON c.person_id = ps.id "
+            + "JOIN pickup ph ON p.pickup_id = ph.id "
+            + "WHERE p.pickup_id =:pickup_id";
+
+    return db.query(sql, req.body).then(function(rows) {
+      if (rows.length > 0) {
+        $scope.reportData = rows;
+        console.log($scope.reportData);
+        for(var i=0; i<$scope.reportData.length; i++){
+          var idex_of = $scope.reportData[i].pickup_place.indexOf("Tel:");
+          $scope.reportData[i].tel = $scope.reportData[i].pickup_place.substring(idex_of+5);
+          $scope.reportData[i].address = $scope.reportData[i].pickup_place.substring(0,idex_of-1);
+          $scope.reportData[i].no = i+1;
+        }
+      }
+      console.log("report2 = ", $scope.reportData);
+    });
+  };
+
+  var renderReport = function() {
+    var dfd = q.defer();
+    $scope.pdfFile = 'pickup_'+ req.body.pickup_id + '.pdf';
+    var pdfFullPath = path.normalize(__dirname + '/../../../public/output/pickup/' + $scope.pdfFile);
+    var report  = new nsReport();
+    var doc = report.createDocument(require('../report/pickup_report.js'), $scope.reportData);
+    var stream = fs.createWriteStream(pdfFullPath);
+    doc.pipe(stream);
+    doc.end();
+    stream.on('finish', function() {
+    dfd.resolve();
+    });
+    stream.on('error', function() {
+    dfd.reject();
+    });
+    return dfd.promise;
+   }
+
+  db.beginTransaction()
+ .then(getPickupReportData)
+ .then(renderReport)
+ .then(function() {
+   res.send({
+     status:true,
+     data: {
+       pdfFile: '/output/pickup/'+$scope.pdfFile,
+       pickupId: req.body.pickup_id
+     }
+   })
+   console.log("Test Gen Report")
+ }).catch(function(e) {
+   res.send({
+     status:false,
+     error:e
+   })
+ });
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////     getAutoComplete        ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/getAutoComplete', [bodyParser.json()], function(req, res) {
+  console.log("getAutoComplete");
+  var db = conn.connect();
+  var $scope = {};
+  $scope.driver = [];
+  $scope.vehicle = [];
+
+  var getDriver = function(){
+    var sql = "select distinct driver from pickup"
+    return db.query(sql, {}).then(function(res) {
+      for (var i = 0; i < res.length; i++) {
+        $scope.driver.push(res[i].driver);
+      }
+      console.log("driver = ", $scope.driver);
+    });
+  }
+
+  var getVehicle = function(){
+    var sql = "select distinct vehicle from pickup"
+    return db.query(sql, {}).then(function(res) {
+      for (var i = 0; i < res.length; i++) {
+        $scope.vehicle.push(res[i].vehicle);
+      }
+      console.log("Vehicle = ", $scope.vehicle);
+    });
+  }
+
+
+  q.all([
+    getDriver(),
+    getVehicle()
+  ]).then(function() {
+    res.send({
+      status:true,
+      data:{
+        driver: $scope.driver,
+        vehicle: $scope.vehicle
+      }
+    });
+  }).catch(function(e) {
+    res.send({
+      status:false,
+      error:e
+    })
+  })
+});
 
 module.exports = router;

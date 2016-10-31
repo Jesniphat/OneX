@@ -75,6 +75,7 @@ var doSignIn = function(req, res) {
           acl[row.b_code][row.m_code][row.p_code]=true;
         });
         $scope.acl = acl;
+        console.log("acl = ", acl);
         return acl;
       });
   };
@@ -97,6 +98,7 @@ var doSignIn = function(req, res) {
         {code:'01', name:'อโศก',isPrimary:false},
         {code:'02', name:'สีลม',isPrimary:false},
         {code:'03', name:'เอกมัย',isPrimary:false},
+        {code:'OneX', name:'One Transport',isPrimary:false}
       ];
       data.period = '2015-04-18';
       data.current_date = new Date().toJSON().slice(0,10);
@@ -130,7 +132,7 @@ router.post('/api', bodyParser.json(), function(req, res) {
 router.get('/:sid?', function(req, res) {
   cookie.plugToRequest(req, res);
   cookie.save('SS_LANG', process.env['SS_LANG']);
-  
+
   if (!req.params.sid) {
     res.redirect('/signin/' + req.sessionID);
     return;

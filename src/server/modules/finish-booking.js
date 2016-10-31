@@ -16,7 +16,12 @@ var doGetBooking = function(req, res) {
     var bookingId = req.body.bookingId;
       return q.all([
         (function() {
-          var query = "select *,CONCAT('<label style=font-size:0.8em>', REPLACE(sender,char(10),'<br/>'), '</label>') AS sender1, CONCAT('<label style=font-size:0.8em>', REPLACE(receipient,char(10),'<br/>'), '</label>') AS receipient1 from booking where id = '" + bookingId + "'";
+          var query = "select b.*, "
+                    + "CONCAT('<label style=font-size:0.8em>', REPLACE(b.sender,char(10),'<br/>'), '</label>') AS sender1, "
+                    + "CONCAT('<label style=font-size:0.8em>', REPLACE(b.receipient,char(10),'<br/>'), '</label>') AS receipient1, "
+                    + "v.total sub_total "
+                    + "from booking b join v_sumItem_price v on b.id = v.booking_id "
+                    + "where b.id = '" + bookingId + "'";
           return db.query(query).then(function(rows) {
               $scope.booking = rows[0];
             });

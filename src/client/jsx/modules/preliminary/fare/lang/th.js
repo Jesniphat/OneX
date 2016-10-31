@@ -7,12 +7,13 @@ module.exports = {
     },
     table: {
     	no: 'No.',
-    	code: 'Group Code',
+      code: 'Product Code',
     	effective: 'Effective',
+      level: 'Customer Level',
     	unit: 'Unit',
     	system: 'System',
     	pay: 'Pay',
-    	purchase: 'Every Purchase',
+      purchase: 'Every Purchase',
     	point: 'Point'
     }
   }

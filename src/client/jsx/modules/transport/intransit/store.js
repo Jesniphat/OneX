@@ -4,47 +4,33 @@ var system          = require('ss-system');
 var ajaxActions     = system.ajaxActions; //require('../../system/actions/ajax');
 var sellActions     = system.sellActions; //require('./actions');
 var menuActions     = system.menuActions; //require('../../system/actions/menu');
-var pickupListActions  = require('./actions');
+var intransitListActions  = require('./actions');
 
 var pickupList = Reflux.createStore({
-    listenables: [pickupListActions],
+    listenables: [intransitListActions],
 
-  onListPickup: function(param) {
+  onListIntransit: function(param) {
     console.log('request');
-    ajaxActions.request('/api/bookingtransport/pickup/listPickUp', param, this.doneListPickup);
+    ajaxActions.request('/api/bookingtransport/intransit/listIntransit', param, this.doneListIntransit);
   },
 //'/api/bookingtransport/listWaitAssign'
-  doneListPickup: function(res) {
+  doneListIntransit: function(res) {
     if (res.status===true) {
-      pickupListActions.listPickup.done(res.data, res.opt);
+      intransitListActions.listIntransit.done(res.data, res.opt);
       //menuActions.updateCount('receipt.sell', res.opt.totalRows);
     } else {
-      pickupListActions.listPickup.error(res.error);
+      intransitListActions.listIntransit.error(res.error);
     }
   },
 
-  onGetSearchBookingWait: function(req){
-    //console.log("req Search = ", req);
-    ajaxActions.request('/api/bookingtransport/pickup/getSearchBookingWait', req, this.doneGetSearchBookingWait);
+  onSaveIntransit: function(req) {
+    ajaxActions.request('/api/bookingtransport/intransit/saveIntransit', req, this.doneSaveIntransit);
   },
-  doneGetSearchBookingWait: function(res){
-    //console.log("doneGetSearchBookingWait = ", res);
-    if(res.status===true){
-      pickupListActions.getSearchBookingWait.done(res.data);
-    } else {
-      pickupListActions.getSearchBookingWait.error(res.error);
-    }
-
-  },
-
-  onSavePickup: function(req) {
-    ajaxActions.request('/api/bookingtransport/pickup/savePickup', req, this.doneSavePickup);
-  },
-  doneSavePickup: function(res) {
+  doneSaveIntransit: function(res) {
     if (res.status===true){
-      pickupListActions.savePickup.done(res.data);
+      intransitListActions.saveIntransit.done(res.data);
     } else {
-      pickupListActions.savePickup.error(res.error);
+      intransitListActions.saveIntransit.error(res.error);
     }
   },
 
@@ -53,39 +39,24 @@ var pickupList = Reflux.createStore({
   },
   doneUpdatePickup: function(res) {
     if (res.status===true){
-      pickupListActions.updatePickup.done(res.data);
+      intransitListActions.updatePickup.done(res.data);
     } else {
-      pickupListActions.updatePickup.error(res.error);
-    }
-  },
-
-  onGetPU: function(req){
-    ajaxActions.request('/api/bookingtransport/pickup/getPU', {id:req}, this.doneGetPU);
-  },
-  doneGetPU: function(res){
-    if (res.status === true){
-      // pickupListActions.getPU.done(res.data);
-      pickupListActions.getPU.done({
-        pu:res.pu,
-        pu_items:res.pu_items
-      });
-    } else {
-      pickupListActions.getPU.error(res.error)
+      intransitListActions.updatePickup.error(res.error);
     }
   },
 
   onAddBarcode: function(req) {
-    ajaxActions.request('/api/bookingtransport/pickup/addBarcode', req, this.doneAddBarcode);
+    ajaxActions.request('/api/bookingtransport/intransit/addBarcode', req, this.doneAddBarcode);
   },
   doneAddBarcode: function(res){
     if(res.status === true){
       if(res.item_no != 'x'){
-        pickupListActions.addBarcode.done(res.item_no);
+        intransitListActions.addBarcode.done(res.item_no);
       }else {
-        pickupListActions.addBarcode.error(res.item_no);
+        intransitListActions.addBarcode.error(res.item_no);
       }
     }else {
-      pickupListActions.addBarcode.error(res.error);
+      intransitListActions.addBarcode.error(res.error);
     }
   },
 
@@ -94,11 +65,112 @@ var pickupList = Reflux.createStore({
   },
   doneSavePickupReceipt: function(res){
     if(res.status === true){
-      pickupListActions.savePickupReceipt.done(res.item_no);
+      intransitListActions.savePickupReceipt.done(res.item_no);
     }else {
-      pickupListActions.savePickupReceipt.error(res.error);
+      intransitListActions.savePickupReceipt.error(res.error);
     }
   },
+
+  onGetIntransitItemById: function(req) {
+    var id = {intransit_id:req};
+    ajaxActions.request('/api/bookingtransport/intransit/getIntransitItemById', id, this.doneGetIntransitItemById);
+  },
+  doneGetIntransitItemById: function(res){
+    // console.log(res);
+    if(res.status === true){
+      intransitListActions.getIntransitItemById.done(res);
+    }else {
+      intransitListActions.getIntransitItemById.error(res.error);
+    }
+  },
+
+  onUpdateIntransit: function(req) {
+    ajaxActions.request('/api/bookingtransport/intransit/updateIntransit', req, this.doneUpdateIntransit);
+  },
+  doneUpdateIntransit: function(res){
+    // console.log(res);
+    if(res.status === true){
+      intransitListActions.updateIntransit.done(res);
+    }else {
+      intransitListActions.updateIntransit.error(res);
+    }
+  },
+
+  onAddBarcodeRecipt: function(req) {
+    // console.log("addBarcodeRecipt = ", req);
+    ajaxActions.request('/api/bookingtransport/intransit/addBarcodeRecipt', req, this.doneAddBarcodeRecipt);
+  },
+  doneAddBarcodeRecipt: function(res) {
+    // console.log("doneAddBarcodeRecipt = ", res);
+    if(res.status === true){
+      if(res.item_no != 'x'){
+        intransitListActions.addBarcodeRecipt.done(res.item_no);
+      }else {
+        intransitListActions.addBarcodeRecipt.error(res.item_no);
+      }
+    }else {
+      intransitListActions.addBarcodeRecipt.error(res.error);
+    }
+  },
+
+  onSaveIntransitReceipt: function(req) {
+    // console.log("saveIntransitReceipt req = ", req);
+      ajaxActions.request('/api/bookingtransport/intransit/saveIntransitReceipt', req, this.doneSaveIntransitReceipt);
+  },
+  doneSaveIntransitReceipt: function(res) {
+    if(res.status === true){
+      intransitListActions.saveIntransitReceipt.done(res.item_no);
+    }else {
+      intransitListActions.saveIntransitReceipt.error(res.error);
+    }
+  },
+
+  onGenReport: function(req) {
+    ajaxActions.request('/api/bookingtransport/intransit/genReport', req, this.doneGenReport);
+  },
+  doneGenReport: function(res){
+    console.log("testGenReport = ", res);
+    if (res.status===true){
+      intransitListActions.genReport.done(res.data);
+    } else {
+      intransitListActions.genReport.error(res.error);
+    }
+  },
+
+  onGenBarcode: function(req) {
+    ajaxActions.request('/api/bookingtransport/intransit/genBarcode', req, this.doneGenBarcode);
+  },
+  doneGenBarcode: function(res) {
+    console.log("genBarcode = ", res);
+    if (res.status===true){
+      intransitListActions.genBarcode.done(res.data);
+    } else {
+      intransitListActions.genBarcode.error(res.error);
+    }
+  },
+
+  onSaveExceptionIntransit: function(req) {
+    ajaxActions.request('/api/bookingtransport/intransit/saveExceptionIntransit', req, this.doneSaveExceptionIntransit);
+  },
+  doneSaveExceptionIntransit: function(res){
+    console.log("doneSaveExceptionIntransit = ", res);
+    if(res.status===true){
+      intransitListActions.saveExceptionIntransit.done(res.data);
+    }else {
+      intransitListActions.saveExceptionIntransit.error(res.error);
+    }
+  },
+
+  onGetDistrict: function(req) {
+    ajaxActions.request('/api/bookingtransport/intransit/getDistrict', req, this.doneGetDistrict);
+  },
+  doneGetDistrict: function(res) {
+    if(res.status===true){
+      intransitListActions.getDistrict.done(res.data);
+    }else {
+      intransitListActions.getDistrict.error(res.error);
+    }
+  }
 
 });
 

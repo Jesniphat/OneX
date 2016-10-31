@@ -12,7 +12,7 @@ var dialogActions     = system.dialogActions;
 var helper            = system.helper;
 var systemStore       = system.systemStore;
 
-var actions  = require('./actions');
+var intransitActions = require('./actions');
 
 var FlexDropdown  = widget.FlexDropdown;
 var FlexTextInput = widget.FlexTextInput;
@@ -20,170 +20,59 @@ var FlexButton    = widget.FlexButton;
 var FlexDataTable = widget.FlexDataTable;
 var FlexCheckbox  = widget.FlexCheckbox;
 
-var s_data_reset = {
-  booking_no:"",
-  customer:"",
-  waybill:"",
-  pickup_date:new Date().toJSON().slice(0,10),
-  district:""
-};
-
-var r_staff = '';
-var r_staff_id = '';
-var r_prepare_by = '';
-
-var Screen = React.createClass({
-  mixins: [
-    // Reflux.listenTo(actions.getPV.done, 'onGetPVDoneActon'),
-    Reflux.listenTo(actions.getSearchBookingWait.done, 'onGetSearchBookingWaitDoneAction'),
-    Reflux.listenTo(actions.getSearchBookingWait.error, 'onGetSearchBookingWaitErrorAction'),
-    Reflux.listenTo(actions.savePickup.done, 'onSavePickupDoneAction'),
-    Reflux.listenTo(actions.savePickup.error, 'onSavePickupErroreAction'),
-    Reflux.listenTo(actions.updatePickup.done, 'onUpdatePickupDoneAction'),
-    Reflux.listenTo(actions.updatePickup.error, 'onUpdatePickupErrorAction'),
-    Reflux.listenTo(actions.getPU.done, 'onGetPUDoneAction'),
-    Reflux.listenTo(actions.getPU.error, 'onGetPUErrorAction'),
-  ],
-
+//var customerAction = require('./actions');
+var PickupReceipt = React.createClass({
   contextTypes: {
-    router: React.PropTypes.func
-  },
-
+      router: React.PropTypes.func
+    },
+  mixins:[
+    // ReFlux.listenTo(pickupListActions.cancelBooking.done,'onCancelBookingDoneAction'),
+    Reflux.listenTo(intransitActions.addBarcode.done, 'onAddBarcodeDoneAction'),
+    Reflux.listenTo(intransitActions.addBarcode.error, 'onAddBarcodeErrorAction'),
+    Reflux.listenTo(intransitActions.saveIntransit.done, 'onSaveIntransitDoneAction'),
+    Reflux.listenTo(intransitActions.saveIntransit.error, 'onSaveIntransitErrorAction'),
+    Reflux.listenTo(intransitActions.updateIntransit.done, 'onUpdateIntransitDoneAction'),
+    Reflux.listenTo(intransitActions.updateIntransit.error, 'onUpdateIntransitErrorAction'),
+    Reflux.listenTo(intransitActions.getIntransitItemById.done, 'onGetIntransitItemByIdDoneAction'),
+    Reflux.listenTo(intransitActions.getIntransitItemById.error, 'onGetIntransitItemByIdErrorAction'),
+    Reflux.listenTo(intransitActions.genReport.done, 'onGenReportDoneAction'),
+    Reflux.listenTo(intransitActions.genReport.error, 'onGenReportErrorAction'),
+    Reflux.listenTo(intransitActions.genBarcode.done, 'onGenBarcodeDoneAction'),
+    Reflux.listenTo(intransitActions.genBarcode.error, 'onGenBarcodeErrorAction'),
+    Reflux.listenTo(intransitActions.saveExceptionIntransit.done, 'onSaveExceptionIntransitDoneAction'),
+    Reflux.listenTo(intransitActions.saveExceptionIntransit.error, 'onSaveExceptionIntransitErrorAction'),
+    Reflux.listenTo(intransitActions.getDistrict.done, 'onGetDistrictDoneAction'),
+    Reflux.listenTo(intransitActions.getDistrict.error, 'onGetDistrictErrorAction')
+  ],
   getInitialState: function() {
-    var id = this.props.params.id;
-    console.log('id',id);
+    var intransit_id = this.props.params.id;
+    console.log('intransit_id',intransit_id);
     var me = this;
     var staff = sessionStore.getSession().staff;
     console.log('staff',staff);
-    r_staff_id = staff.id;
-    r_staff = staff.display_name;
-    r_prepare_by = staff.display_name;
 
-    this.fields = {
-      booking_no: {
-        id:'booking_no',
-        type:'text',
-        label:'pickupEdit.booking_no'
-      },
-      customer: {
-        id:'customer',
-        type:'text',
-        label:'pickupEdit.customer'
-      },
-      pickup_no: {
-        id:'pickup_no',
-        type:'text',
-        label:'pickupEdit.pickup_no',
-        readonly:true
-      },
-      pickup_date_set: {
-        id:'pickup_date_set',
-        type: 'date',
-        label:'pickupEdit.pickup_date_set'
-      },
-      waybill: {
-        id:'waybill',
-        type:'text',
-        label:'pickupEdit.waybill'
-      },
-      pickup_date: {
-        id:'pickup_date',
-        type:'date',
-        label:'pickupEdit.pickup_date'
-      },
-      prepare_by: {
-        id:'prepare_by',
-        type:'text',
-        label:'pickupEdit.prepare_by',
-        readonly:true
-      },
-      driver: {
-        id:'driver',
-        type:'text',
-        label:'pickupEdit.driver'
-      },
-      district: {
-        id:'district',
-        type:'text',
-        label:'pickupEdit.district'
-      },
-      remark: {
-        id:'remark',
-        type:'text',
-        label:'pickupEdit.remark'
-      },
-      status: {
-        id:'status',
-        list:[
-          {value:'active', text:tr.translate('pickupEdit.status.active')},
-          {value:'receipted', text:tr.translate('pickupEdit.status.receipted')},
-          {value:'cancel', text:tr.translate('pickupEdit.status.cancel')}
-        ],
-        readonly:true
-      }
-    };
-
-    this.bookingBoxTable = [
-      {name:'code',label:'bookingSearchTable.booking_no',width:'112px',render:function(row) {
-        return (
-          <div className="multiline">
-            <div><span>{row.booking_no}</span></div>
-          </div>
-        );
-      }},
-      {name:'product',label:'bookingSearchTable.customer',render:function(row) {
-        return (
-          <div className="multiline">
-            <div className="ellipsis" title={row.firstname}>{row.firstname}</div>
-          </div>
-        );
-      }},
-      {name:'cost',label:'bookingSearchTable.qty',width:'88px',render:function(row) {
-        return (
-          <div className="multiline">
-            <div className="right green">{row.item_qty || 1}</div>
-          </div>
-        );
-      }},
-      {name:'chk',label:(
-          <span
-            className="flaticon-right244"
-            title={tr.translate('finance.pv.search_table.select_all')}
-            onClick={function() {me.addAllToPickup()}}
-            />
-        ),raw:true,width:'32px',render:function(row, i) {
-          if (row.status=='WAIT_ASSIGN' || me.state.prevItems[row.stockin_id]) {
-            return (<span className="flaticon-right237" onClick={function(){me.addToPickup(row, i)}}/>);
-          } else {
-            return null;
-          }
-      }}
-    ];
-
-    this.pickupTable = [
-      {name:'code',label:'pickupTable.booking_no',width:'160px',render:function(row) {
+    this.intransitListTable = [
+      {name:'code',label:'IntransitTable.booking_no',width:'160px',render:function(row) {
         return (
           <div className="multiline">
             <div><span className="blue">{row.booking_no}</span></div>
           </div>
         );
       }},
-      {name:'product',label:'pickupTable.customer',render:function(row) {
+      {name:'product',label:'IntransitTable.waybill',render:function(row) {
         return (
-          <div className="multiline" style={{whiteSpace:'normal'}}>{row.firstname}</div>
+          <div className="multiline" style={{whiteSpace:'normal'}}>{row.waybill}</div>
         );
       }},
-      {name:'serial',label:'pickupTable.package_content',width:'160px',render:function(row) {
+      {name:'status',label:'IntransitTable.status',render:function(row) {
         return (
-          <div className="multiline">
-            <div className="green">{row.package_contents_p}</div>
-          </div>
+          <div className="multiline" style={{whiteSpace:'normal'}}>{row.status}</div>
         );
       }},
-      {name:'cost',label:'pickupTable.qty',width:'104px',render:function(row) {
+      {name:'serial',label:'IntransitTable.item_no',width:'160px',render:function(row) {
         return (
           <div className="multiline">
-            <div className="right">{row.item_qty || 1}</div>
+            <div className="green">{row.booking_item_no}</div>
           </div>
         );
       }},
@@ -191,224 +80,329 @@ var Screen = React.createClass({
           <span
             className="flaticon-clear5"
             title={tr.translate('pickupTable.remove_all')}
-            onClick={function() {me.removeAllFromPickup()}}
+            onClick={function() {me.removeAllFromIntransit()}}
             />
         ),raw:true,width:'32px',render:function(row, i) {
-        return (<span className="flaticon-clear5" onClick={function() {me.removeFromPickup(row, i)}}/>);
+        return (<span className="flaticon-clear5" onClick={function() {me.removeFromIntransit(row, i)}}/>);
       }}
     ];
 
-    return {
-      s_data:helper.clone(s_data_reset),
-      pu:{
-        id:id,
-        pickup_no:'',
-        code:'',
-        pickup_date_set:helper.dateToString(new Date()),
-        booking_id:0,
-        booking:'',
-        staff_id:staff.id,
-        staff:staff.display_name,
-        prepare_by:staff.display_name,
-        driver:'',
-        remark:'',
-        status:'active',
-        booking_qty:0,
-        booking_item_qty:0
+    this.fields = {
+      intransit_no: {
+        id:'intransit_no',
+        type:'text',
+        label:'intransitEdit.intransit_no',
+        readonly: true
       },
-      bookingBox:[],
-      puItems:[],
-      prevItems:{},
-      prev_status:'active'
-    };
+      delivery_date: {
+        id: 'delivery_date',
+        type: 'date',
+        label: 'intransitEdit.delivery_date'
+      },
+      display_status: {
+        id: 'display_status',
+        type: 'text',
+        label: '',
+        readonly: true
+      },
+      // from: {
+      //   id:'from',
+      //   type: 'text',
+      //   label:'intransitEdit.from',
+      //   readonly:true
+      // },
+      // to: {
+      //   id:'to',
+      //   type:'text',
+      //   label:'intransitEdit.to',
+      //   readonly:true
+      // },
+      prepare_by: {
+        id:'prepare_by',
+        type: 'text',
+        label:'intransitEdit.prepare_by',
+        readonly:true
+      },
+      remark: {
+        id:'remark',
+        type:'text',
+        label:'intransitEdit.remark'
+      },
+      item_no: {
+        id:'item_no',
+        type: 'text',
+        label:'intransitEdit.item_no'
+      },
+      size: {
+        id:'size',
+        type: 'text',
+        label:'intransitEdit.size',
+        autofocus:true,
+      },
+      eta_date: {
+        id:'eta_date',
+        type:'date',
+        label:'intransitEdit.eta_date'
+      },
+      intransit_time: {
+        id: 'intransit_time',
+        type: 'time',
+        label: 'intransitEdit.intransit_time'
+      },
+      exception_reason: {
+        id:'exception_reason',
+        type:'text',
+        label:'intransitEdit.exception_reason'
+      }
+    }
+
+    return {
+      intransit_id: intransit_id,
+      data: {
+        intransit_no:'',
+        delivery_date:helper.dateToString(new Date()),
+        status:'active',
+        display_status:'ACTIVE',
+        from:'Bang Bon',
+        to:'Chamker Mon',
+        prepare_by: staff.display_name,
+        remark:'',
+        item_no:'',
+        size:'',
+        eta_date:helper.dateToString(new Date()),
+        intransit_time:helper.dateTimeToString(new Date()).substr(11,5),
+        exception_reason:''
+        // origin:'Bang Khun Thian',
+        // destionation: 'Prampir Meakkakra'
+      },
+      intransit_qty:0,
+      intransitListItems:[],
+      item_no:'',
+      pickup_no:'',
+      staff_id: staff.id,
+      staff: staff.display_name,
+      prev_status:'active',
+      originList:{
+        id:'from',
+        label:'intransitEdit.from',
+        list:[]
+      },
+      destinationList:{
+        id:'to',
+        label:'intransitEdit.to',
+        list:[]
+      },
+    }
   },
 
   componentDidMount: function() {
-    //infoPanelActions.show('finance.pu.list', null);
-    if (this.state.pu.id != '0' || this.state.pu.id != 0) {
-      actions.getPU(this.state.pu.id);
+    // console.log("date = ", helper.dateTimeToString(new Date()).substr(11,5));
+    console.log(system.sessionStore.getSession());
+    if (this.state.intransit_id != '0' || this.state.intransit_id != 0) {
+      // console.log("com");
+      intransitActions.getIntransitItemById(this.state.intransit_id);
     }
+    intransitActions.getDistrict();
   },
 
-  handleSearchChange: function(id, value) {
-    this.state.s_data[id] = value;
+  handleChange: function(id, value) {
+    console.log("handleChange");
+    this.state.data[id] = value;
+    storage.save(storageKey, {
+      current_status: this.state.data.current_status,
+      shop: this.state.data.shop
+    });
     this.setState({
-      s_data: this.state.s_data
+      data: this.state.data
+    }, function() {
+      this.refs.grid.doRefresh();
     });
   },
 
-  handlePuChange: function(id, value) {
-    this.state.pu[id] = value;
+  handleBarcodeChange: function(id, value) {
+    this.state.data[id] = value;
     this.setState({
-      pu: this.state.pu
+      data: this.state.data
     });
   },
 
-  doSearch: function(){
-    console.log("do Search = ", this.state.s_data);
-    var obj = this.state.s_data;
-    actions.getSearchBookingWait(obj);
-  },
+  onAddBarcodeDoneAction: function(res) {
+    console.log(res);
+    console.log("intransitListItems = ", this.state.intransitListItems);
+    if(this.state.data.from == ''){
+      this.state.data.from = res.country_origin;
+    }
+    if (this.state.data.to == '') {
+      this.state.data.to = res.country_destination;
+    }
+    var existing = {};
+    this.state.intransitListItems.forEach(function(item) {
+      existing[item.booking_item_no] = true;
+    });
 
-  onGetSearchBookingWaitDoneAction: function(result){
-    console.log("onGetSearchBookingWaitDoneAction = ", result);
-
-    if (result.length==0) {
+    if(!existing[res.booking_item_no]){
+      this.state.intransitListItems.push(res);
+    } else {
       toasterActions.pop({
         type:'warning',
-        message:'ไม่พบรายการตามที่ระบุ'
+        message:"ยิงไปแล้ว"
       });
+      return;
     }
-
-    var existing = {};
-    this.state.puItems.forEach(function(item) {
-      existing[item.booking_id] = true;
-    });
-    // console.log("existing[item.booking_id] = ", existing);
+    this.state.data.item_no = "";
     this.setState({
-      bookingBox: result.filter(function(row) {
-        // console.log("existing[row.booking_id] = ", row.booking_id, "  ddd = ", existing[row.booking_id], " row = ", row);
-        return !existing[row.booking_id]
-      })
+      intransitListItems: this.state.intransitListItems,
+      data:this.state.data
     });
-    // console.log("bookingBox = ", this.state.bookingBox);
-    // console.log("booking_id = ", result[0].id, result[0].booking_id);
-    this.state.pu.booking_id = result[0].id;
-    this.state.pu.booking_no = result[0].booking_no;
-    this.setState({
-      pu:this.state.pu
-    });
-    console.log('Code:',this.state.pu.booking_no,',id:',this.state.pu.booking_id);
   },
 
-  onGetSearchBookingWaitErrorAction: function(error){
+  onAddBarcodeErrorAction: function(error) {
     toasterActions.pop({
       type:'warning',
-      message:error
+      message:"Don't have this item."
     });
   },
 
-  onGetPUDoneAction: function(result){
-    var prevItems = {};
-    console.log('results:',result);
-    result.pu_items.forEach(function(item) {
-      prevItems[item.id] = true;
-    });
-
-    console.log('Status2 : ' , result.pu.status)
+  onGetIntransitItemByIdDoneAction: function(res){
+    console.log('res:',res);
+    var getdata = res.intransit;
+    this.state.data.intransit_no = getdata.intransit_no;
+    this.state.data.status = getdata.status;
+    this.state.data.from = getdata.from;
+    this.state.data.to = getdata.to;
+    this.state.data.remark = getdata.remark;
+    this.state.data.delivery_date = getdata.intransit_date;
+    this.state.data.size = getdata.size,
+    this.state.data.eta_date = getdata.eta,
+    this.state.data.intransit_time = getdata.intransit_time;
+    this.state.prev_status = getdata.status;
+    this.state.data.display_status = getdata.display_status;
+    this.state.data.exception_reason = getdata.exception_reason;
     this.setState({
-      pu: result.pu,
-      puItems: result.pu_items,
-      prevItems: prevItems,
-      prev_status: result.pu.status
+      data:this.state.data,
+      prev_status:this.state.prev_status,
+      intransitListItems: res.item_list
     });
   },
 
-  onGetPUErrorAction: function(error){
-    this.state.pu.id = 0;
+  onSaveIntransitDoneAction: function(res) {
+    console.log("save complete data = ", res);
+    this.state.data.delivery_no = "";
+    this.state.data.from = "Thailand - Bang Bon";
+    this.state.data.to = "Cambodia - Chamker Mon";
+    this.state.data.delivery_date = helper.dateToString(new Date());
+    this.state.data.remark = "";
+    this.state.data.size = "";
+    this.state.data.eta_date = helper.dateToString(new Date());
+    this.state.data.intransit_time = helper.dateTimeToString(new Date()).substr(11,5);
+    this.state.intransit_qty = 0;
     this.setState({
-      pu: this.state.pu
-    }, function() {
+      intransitListItems: [],
+      data:this.state.data,
+      intransit_qty:this.state.intransit_qty,
+      prev_status:'active'
+    });
+    toasterActions.pop({
+      type:'success',
+      message:'Save complete.'
+    });
+    console.log("this = ", this.state.intransitListItems, this.state.data, this.state.intransit_qty);
+    intransitActions.genReport({intransit_id:res.intransit_id});
+  },
+
+  onSaveIntransitErrorAction: function(error){
+    toasterActions.pop({
+      type:'warning',
+      message:"Can't save data."
+    });
+  },
+
+
+  onUpdateIntransitDoneAction: function(res){
+    console.log("update complete data = ", res);
+    this.state.data.delivery_no = "";
+    this.state.data.from = "Thailand - Bang Bon";
+    this.state.data.to = "Cambodia - Chamker Mon";
+    this.state.data.delivery_date = helper.dateToString(new Date());
+    this.state.data.remark = "";
+    this.state.data.size = "";
+    this.state.data.eta_date = helper.dateToString(new Date());
+    this.state.data.intransit_time = helper.dateTimeToString(new Date()).substr(11,5);
+    this.state.intransit_qty = 0;
+    this.setState({
+      intransitListItems: [],
+      data:this.state.data,
+      intransit_qty:this.state.intransit_qty,
+      prev_status:'active',
+      intransit_id:0
+    });
+    toasterActions.pop({
+      type:'success',
+      message:'Update complete.'
+    });
+    console.log("this = ", this.state.intransitListItems, this.state.data, this.state.intransit_qty, this.state.intransit_id);
+    intransitActions.genReport({intransit_id:res.data.intransit_id});
+  },
+
+  onUpdateIntransitErrorAction: function(){
+    toasterActions.pop({
+      type:'warning',
+      message:"Can't update data."
+    });
+  },
+
+  onGenReportDoneAction: function(res){
+    window.open(res.pdfFile);
+    intransitActions.genBarcode({intransit_id:res.intransitId});
+  },
+
+  onGenReportErrorAction: function(error){
+    console.log("error = ", error);
+    toasterActions.pop({
+      type:'warning',
+      message:"Can't gen report."
+    });
+  },
+
+  onGenBarcodeDoneAction: function(res){
+    window.open(res.pdfFile);
+  },
+
+  onGenBarcodeErrorAction: function(error){
+    console.log("error = ", error);
+    toasterActions.pop({
+      type:'warning',
+      message:"Can't gen barcode."
+    });
+  },
+
+  handleEnter: function(id,value){
+    if (value==""||value==undefined||value==null){
       toasterActions.pop({
         type:'warning',
-        message:'ไม่พบรายการรับของ'
+        message:"Please fill barcode."
       });
-    });
+      this.refs.item_no.setFocus();
+      return;
+    }
+    intransitActions.addBarcode({item_no:value});
   },
 
-  addToPickup: function(row, i) {
-    this.state.puItems.unshift(this.state.bookingBox[i]);
-    this.state.bookingBox.splice(i,1);
+  removeFromIntransit: function(row, i){
+    this.state.intransitListItems.splice(i, 1);
     this.setState({
-      puItems: this.state.puItems,
-      bookingBox: this.state.bookingBox
+      intransitListItems: this.state.intransitListItems
     });
-    console.log("addToPickup : ",this.state.puItems);
   },
 
-  addAllToPickup: function() {
-    var cnt = 0;
-    this.state.bookingBox.forEach(function(row) {
-      if (row.status=='WAIT_ASSIGN') {
-        this.state.puItems.unshift(row);
-        cnt++;
-      }
-    }.bind(this));
-    var len = this.state.bookingBox.length;
-    for (var i = len-1; i >= 0; i--) {
-      if (this.state.bookingBox[i].status=='WAIT_ASSIGN') {
-        this.state.bookingBox.splice(i,1);
-      }
-    }
-    if (cnt==0) {
-      toasterActions.pop({
-        type:'warning',
-        message:'ไม่มีรายการที่จะเพิ่ม'
-      });
-    } else {
-      this.setState({
-        puItems: this.state.puItems,
-        bookingBox: this.state.bookingBox
-      });
-    }
-  },
-
-  removeFromPickup: function(row, i) {
-    var item = this.state.puItems.splice(i, 1);
-    var hasChange = this.addBackToBookingBox(item);
-    var obj = {
-      puItems: this.state.puItems
-    };
-    if (hasChange) {
-      obj.bookingBox = this.state.bookingBox;
-    }
-    this.setState(obj);
-  },
-
-  removeAllFromPickup: function() {
-    var hasChange = this.addBackToBookingBox(this.state.puItems);
-    var obj = {
-      puItems: []
-    };
-    if (hasChange) {
-      obj.bookingBox = this.state.bookingBox;
-    }
-    this.setState(obj);
-  },
-
-  addBackToBookingBox: function(items) {
-    var filterBooking = this.state.s_data.booking_no.replace('%','');
-    var filterCustomer = this.state.s_data.customer.replace('%', '');
-    var filterWaybill = this.state.s_data.waybill.replace('%', '');
-    if (filterBooking=="" && filterCustomer=="" && filterWaybill=="") {
-      items.forEach(function(item) {
-        this.state.bookingBox.push(item);
-      }.bind(this));
-      return true;
-    }
-    var hasChange = false;
-    items.forEach(function(item) {
-      if (filterBooking!='' && (item.booking_no==filterBooking || item.booking_no.indexOf(filterBooking) != -1)) {
-        this.state.bookingBox.unshift(item);
-        hasChange = true;
-        return;
-      }
-      if (filterCustomer!='' && (item.firstname==filterCustomer || item.firstname.indexOf(filterCustomer) != -1)) {
-        this.state.bookingBox.unshift(item);
-        hasChange = true;
-        return;
-      }
-      if (filterWaybill!='' && (item.waybill==filterWaybill || item.waybill.indexOf(filterWaybill)!=-1)) {
-        this.state.bookingBox.unshift(item);
-        hasChange = true;
-        return;
-      }
-    }.bind(this));
-    return hasChange;
+  removeAllFromIntransit: function(){
+    this.setState({
+      intransitListItems: []
+    });
   },
 
   canSave: function() {
-    if (this.state.pu.id != 0 || this.state.pu.id != '0') {
+    if (this.state.intransit_id != 0 || this.state.intransit_id != '0') {
       console.log('StatusCanSave = ',this.state.prev_status );
       if (this.state.prev_status =='active'){
         return false;
@@ -418,292 +412,304 @@ var Screen = React.createClass({
   },
 
   doSave: function(){
-    console.log(this.state.pu.id);
-    if (this.state.puItems.length==0) {
-      toasterActions.pop({type:'warning',message:'ยังไม่มีรายการ'});
-      return;
-    }
-    if (this.state.pu.driver.trim()==''){
-      toasterActions.pop({type:'warning',message:'กรุณาระบุคนไปรับสินค้า'});
-      this.refs.driver.setFocus();
+    if(this.state.intransitListItems.length == 0){
+      toasterActions.pop({
+        type:'warning',
+        message:"Don't have item."
+      });
+      this.refs.item_no.setFocus();
       return;
     }
     var param = {
-      pu: this.state.pu,
-      pu_items: this.state.puItems
+      intransit_qty: this.state.intransit_qty,
+      intransit_id: this.state.intransit_id,
+      staff_id: this.state.staff_id,
+      intransit_no: this.state.data.intransit_no,
+      delivery_date: this.state.data.delivery_date,
+      status: this.state.data.status,
+      from: this.state.data.from,
+      to: this.state.data.to,
+      prepare_by: this.state.staff,
+      remark: this.state.data.remark,
+      item_no: this.state.data.item_no,
+      intransitListItems: this.state.intransitListItems,
+      size:this.state.data.size,
+      eta_date:this.state.data.eta_date,
+      intransit_time:this.state.data.intransit_time
     };
-    if (this.state.pu.id == 0 || this.state.pu.id == '0'){
-      console.log("save data = ", param);
-      actions.savePickup(param);
+    console.log("param = ", param);
+
+    if(this.state.intransit_id == 0 || this.state.intransit_id == '0'){
+      console.log("Save Intransit");
+      intransitActions.saveIntransit(param);
+    }else {
+      console.log("Update Intransit");
+      intransitActions.updateIntransit(param);
+    }
+  },
+
+  canPrint: function() {
+    if (this.state.intransit_id == 0 || this.state.intransit_id == '0') {
+      return true;
+    }else {
+      return false;
+    }
+  },
+
+  doPrint: function(){
+    console.log("Do Print");
+    // intransitActions.genReport({intransit_id:this.state.intransit_id})
+    if (this.state.intransit_id == 0 || this.state.intransit_id == '0'){
+      console.log("Don't print ");
+      return;
     } else {
-      console.log("Update data = ", param);
-      actions.updatePickup(param);
+      console.log("doprint");
+      window.open("/output/intransit/intransit_" + this.state.intransit_id + ".pdf");
+      window.open("/output/intransit/intransit_barcode_" + this.state.intransit_id + ".pdf");
+    }
+  },
+
+  canException: function(){
+    if (this.state.intransit_id != 0 || this.state.intransit_id != '0') {
+      console.log('StatusCanSave = ',this.state.prev_status );
+      if (this.state.prev_status =='exception'){
+        return false;
+      }else{
+        return true;
+      }
+    } else {
+      return true;
+    }
+  },
+
+  doExceptionReason: function(){
+    if(this.state.data.exception_reason == ""){
+      toasterActions.pop({
+        type:'warning',
+        message:"Please fill reason."
+      });
+      this.refs.exception_reason.setFocus();
+      return;
     }
 
+    var param = {
+      exception_reason: this.state.data.exception_reason,
+      intransit_id: this.state.intransit_id
+    }
+    console.log("Save exception_reason = ", param);
+    intransitActions.saveExceptionIntransit(param);
   },
 
-  onSavePickupDoneAction: function(data){
-    console.log("save complete data = ", data);
-    this._resetData();
+  onSaveExceptionIntransitDoneAction: function(res){
     toasterActions.pop({
       type:'success',
-      message:'Save pickup complete.'
+      message:"Save data complete."
     });
   },
 
-  onSavePickupErroreAction: function(error){
-    console.log("Error");
+  onSaveExceptionIntransitErrorAction: function(error){
+    console.log("reason error = ", error);
     toasterActions.pop({
       type:'warning',
-      message:error
+      message:"Can't update reason."
     });
   },
 
-  onUpdatePickupDoneAction: function(data) {
-    this._resetData();
-    toasterActions.pop({
-      type:'success',
-      message:'Update pickup complete.'
-    });
-  },
-
-  onUpdatePickupErrorAction: function(error) {
-    console.log("Error");
-    toasterActions.pop({
-      type:'warning',
-      message:error
-    });
-  },
-
-  _resetData: function(){
-    this.state.pu.id = 0;
-    this.state.pu.pickup_no = '';
-    this.state.pu.code = '';
-    this.state.pu.pickup_date_set = helper.dateToString(new Date());
-    this.state.pu.booking_id = 0;
-    this.state.pu.booking = '';
-    this.state.pu.staff_id = r_staff_id;
-    this.state.pu.staff = r_staff;
-    this.state.pu.prepare_by = r_prepare_by;
-    this.state.pu.driver = '';
-    this.state.pu.remark = '';
-    this.state.pu.status = 'active';
-    this.state.pu.booking_qty = 0;
-    this.state.pu.booking_item_qty = 0;
-
+  onGetDistrictDoneAction: function(res){
+    this.state.originList.list = res.origin;
+    this.state.destinationList.list = res.destination;
     this.setState({
-      pu: this.state.pu,
-      s_data:helper.clone(s_data_reset),
-      bookingBox:[],
-      puItems:[],
-      prevItems:{},
-      prev_status:'active'
-    });
+      originList: this.state.originList,
+      destinationList: this.state.destinationList
+    })
+  },
+
+  onGetDistrictErrorAction: function(error){
+    console.log("eeror get district = ", error);
   },
 
   render: function() {
-    var searchSummary = {
+    var intransitListSummary = {
       count:0,
-      qty:0,
-      amount:0
     };
-    searchSummary = this.state.bookingBox.reduce(function(prev, row) {
+    intransitListSummary = this.state.intransitListItems.reduce(function(prev, row) {
       return {
-        count: prev.count+1,
-        qty: prev.qty + row.item_qty
-      }
-    }, searchSummary);
-    var bookingBoxFooter = (
-      <tr>
-        <td className="right"><div style={{width:"103px"}}></div></td>
-        <td className="right"><div style={{width:"109px"}}>{searchSummary.count} Booking</div></td>
-        <td className="right"><div style={{width:"79px"}}>{searchSummary.qty} Item</div></td>
-        <td><div style={{width:"40px"}}></div></td>
-      </tr>
-    );
-
-    var pickupSummary = {
-      count:0,
-      qty:0,
-      amount:0,
-      vat_amount:0
-    };
-    pickupSummary = this.state.puItems.reduce(function(prev, row) {
-      return {
-        count: prev.count+1,
-        qty: prev.qty + row.item_qty
+        count: prev.count+1
       };
-    }, pickupSummary);
+    }, intransitListSummary);
 
-    this.state.pu.total_amount = pickupSummary.amount;
-    this.state.pu.vat_amount = pickupSummary.vat_amount;
-    this.state.pu.net_amount = this.state.pu.total_amount + this.state.pu.vat_amount - this.state.pu.cn_amount;
-    this.state.pu.booking_qty = pickupSummary.count;
-    this.state.pu.booking_item_qty = pickupSummary.qty;
+    this.state.intransit_qty = intransitListSummary.count;
 
-    var pickupFooter = (
+    var intransitListFooter = (
       <tr>
         <td>Total</td>
-        <td className="right">{pickupSummary.count} booking</td>
         <td className="right"></td>
-        <td className="right blue" style={{fontSize:'16px'}}>{pickupSummary.qty} Item</td>
+        <td className="right blue" style={{fontSize:'16px'}}>{intransitListSummary.count} Item</td>
         <td></td>
       </tr>
     );
-
     return (
       <div className="flex-form">
-      <div className="box10">
-        <div className="panel5 flex">
-          <p>Pickup schedule</p>
+      <div className="box10-flex">
+        <div className="panel10 flex">
+          <h3>Receive in transit container</h3>
         </div>
       </div>
-        <div className="box10 flex">
-          <div className="box4">
-            <div className="panel4 flex">
-              <FlexTextInput
-                field={this.fields.booking_no}
-                data={this.state.s_data}
-                onChange={this.handleSearchChange}
-                />
-              <div style={{width:'8px'}} className="no-shrink"></div>
-              <FlexTextInput
-                field={this.fields.customer}
-                data={this.state.s_data}
-                onChange={this.handleSearchChange}
-                />
-            </div>
+      <div className="box10-flex">
+        <div className="panel10 flex">
+          <h4>Receive by barcode</h4>
+        </div>
+      </div>
+      <div className="box10-flex">
+        <div className="box8">
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="delivery_no"
+              field={this.fields.intransit_no}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box4">
-            <div className="panel4 flex">
-              <FlexTextInput
-                field={this.fields.pickup_no}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-                />
-              <div style={{width:'8px'}} className="no-shrink"></div>
-              <FlexTextInput
-                field={this.fields.pickup_date_set}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-                />
-            </div>
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="size"
+              field={this.fields.size}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box2">
-            <div className="panel2 flex">
-              <FlexDropdown
-                field={this.fields.status}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-                />
-            </div>
+          <div className="panel2 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="display_status"
+              field={this.fields.display_status}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
         </div>
-        <div className="box10 flex">
-          <div className="box4">
-            <div className="panel4 flex">
-              <FlexTextInput
-                field={this.fields.waybill}
-                data={this.state.s_data}
-                onChange={this.handleSearchChange}
-                />
-              <div style={{width:'8px'}} className="no-shrink"></div>
-              <FlexTextInput
-                field={this.fields.pickup_date}
-                data={this.state.s_data}
-                onChange={this.handleSearchChange}
-                />
-            </div>
+        <div className="box8">
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexDropdown
+              ref="from"
+              field={this.state.originList}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box4">
-            <div className="panel4 flex">
-              <FlexTextInput
-                field={this.fields.prepare_by}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-                />
-              <div style={{width:'8px'}} className="no-shrink"></div>
-              <FlexTextInput
-                ref="driver"
-                field={this.fields.driver}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-                />
-            </div>
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexDropdown
+              ref="to"
+              field={this.state.destinationList}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box2">
-            <div className="panel2 flex">
-              <FlexButton icon="email107"
-                label="pickupEdit.save"
-                default={true}
-                onClick={this.doSave}
-                disabled={this.canSave()}
-              />
-            </div>
+          <div className="panel2 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="prepare_by"
+              field={this.fields.prepare_by}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
         </div>
-        <div className="box10 flex">
-          <div className="box4">
-            <div className="panel4 flex">
-              <FlexTextInput
-                field={this.fields.district}
-                data={this.state.s_data}
-                onChange={this.handleSearchChange}
-                />
-              <div style={{width:'8px'}} className="no-shrink"></div>
-              <FlexButton icon="search100"
-                label="pickupEdit.search"
-                default={true}
-                onClick={this.doSearch}
-              />
-            </div>
+        <div className="box8">
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="delivery_date"
+              field={this.fields.delivery_date}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box4">
-            <div className="panel4 flex">
-              <FlexTextInput
-                field={this.fields.remark}
-                data={this.state.pu}
-                onChange={this.handlePuChange}
-              />
-            </div>
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="eta_date"
+              field={this.fields.eta_date}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box2">
-            <div className="panel2 flex">
-              <FlexButton icon="printer88"
-                label="pickupEdit.print"
-                onClick={this.doPrint}
-              />
-            </div>
+          <div className="panel2 flex" style={{float:"left"}}>
+            <FlexButton icon="email107"
+              label="intransitEdit.save"
+              default={true}
+              onClick={this.doSave}
+              disabled={this.canSave()}
+            />
           </div>
         </div>
-
-        <div className="box10 flex">
-          <div className="box4">
-            <div className="panel4" style={{borderRight:'1px solid #eee',paddingRight:'1px'}}>
-              <FlexDataTable
-                fields={this.bookingBoxTable}
-                data={this.state.bookingBox}
-                key="stockin_id"
-                displayRows={8}
-                footer={bookingBoxFooter}
-                />
-            </div>
+        <div className="box8">
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="intransit_time"
+              field={this.fields.intransit_time}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
           </div>
-          <div className="box6">
-            <div className="panel6" style={{borderLeft:'1px solid #eee',paddingLeft:'7px'}}>
-              <FlexDataTable
-                fields={this.pickupTable}
-                data={this.state.puItems}
-                key="stockin_id"
-                displayRows={8}
-                footer={pickupFooter}
-              />
-            </div>
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="remark"
+              field={this.fields.remark}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+            />
+          </div>
+          <div className="panel2 flex" style={{float:"left"}}>
+            <FlexButton
+              icon="printer88"
+              label="intransitEdit.print"
+              onClick={this.doPrint}
+              disabled={this.canPrint()}
+            />
+          </div>
+        </div>
+        <div className="box8" style={{paddingRight:"47px"}}>
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="item_no"
+              field={this.fields.item_no}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+              onEnter={this.handleEnter}
+            />
+          </div>
+          <div className="panel3 flex" style={{float:"left"}}>
+            <FlexTextInput
+              ref="exception_reason"
+              field={this.fields.exception_reason}
+              data={this.state.data}
+              onChange={this.handleBarcodeChange}
+              onEnter={this.handleEnter}
+            />
+          </div>
+          <div className="panel2 flex" style={{float:"left"}}>
+            <FlexButton
+              icon="report"
+              label="intransitEdit.exception"
+              onClick={this.doExceptionReason}
+              disabled={this.canException()}
+            />
           </div>
         </div>
       </div>
-    )
+      <div className="box10 flex">
+        <div className="box8">
+          <div className="panel8" style={{borderLeft:'1px solid #eee',paddingLeft:'7px'}}>
+            <FlexDataTable
+              fields={this.intransitListTable}
+              data={this.state.intransitListItems}
+              key="stockin_id"
+              displayRows={8}
+              footer={intransitListFooter}
+            />
+          </div>
+        </div>
+      </div>
+      </div>
+    );
   }
 });
 
-module.exports = Screen;
+module.exports = PickupReceipt;

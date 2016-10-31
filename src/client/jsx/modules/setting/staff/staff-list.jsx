@@ -43,8 +43,8 @@ var StaffList = React.createClass({
         }},
         {name:'actions', type:'actions', width:(2*28+8)+'px', render:function(row) {
           return (<div className="flex">
-            <FlexIcon to="setting.staff.edit" param={{id:row.id}} icon="create3" title="action.edit"></FlexIcon>
-            <FlexIcon to="setting.staff.edit" param={{id:row.id}} icon="rubbish" title="action.delete"></FlexIcon>
+            <FlexIcon to={'/setting/staff/staff_new/'+row.id} icon="create3" title="action.edit"></FlexIcon>
+            <FlexIcon to={'/setting/staff/staff_new/'+row.id} icon="rubbish" title="action.delete"></FlexIcon>
           </div>);
         }}
       ]
@@ -55,7 +55,8 @@ var StaffList = React.createClass({
   },
 
   doStaffNew: function() {
-    this.context.router.transitionTo('setting.staff.edit', {id:0});
+    // this.context.router.transitionTo('setting.staff.edit', {id:0});
+    this.props.history.pushState(null, '/setting/staff/staff_new/0');
   },
 
   render: function() {

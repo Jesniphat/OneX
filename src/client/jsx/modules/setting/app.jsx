@@ -17,6 +17,7 @@ var Shop          = require('./shop/shop.jsx');
 var Department    = require('./department/department.jsx');
 var Role          = require('./role/role.jsx');
 var Grant         = require('./grant/grant.jsx');
+// var Default       = require('.default/default.jsx');
 
 tr.registerTranslations('en', require('./lang/en.js'));
 tr.registerTranslations('th', require('./lang/th.js'));
@@ -37,7 +38,7 @@ App.Index = React.createClass({
     systemActions.setTheme(6);
     systemActions.updateTopPanel({
       code:'setting',
-      name:'ตั้งค่าระบบ',
+      name:'Settings',
       icon:'settings49'
     });
     menuActions.show([
@@ -46,7 +47,8 @@ App.Index = React.createClass({
       {id:'shop', route:'/setting/shop', label:'setting.menu.shop', icon:'web37', acl:['M_SETTING_SHOP']},
       {id:'department', route:'/setting/department', label:'setting.menu.department', icon:'shared1', acl:['M_SETTING_DEPARTMENT']},
       {id:'role', route:'/setting/role', label:'setting.menu.role', icon:'two385', acl:['M_SETTING_ROLE']},
-      {id:'grant', route:'/setting/grant', label:'setting.menu.grant', icon:'locked58', acl:['M_SETTING_GRANT']}
+      {id:'grant', route:'/setting/grant', label:'setting.menu.grant', icon:'locked58', acl:['M_SETTING_GRANT']},
+      {id:'default', route:'/setting/default', label:'setting.menu.default', icon:'city24', acl:['M_SETTING_DEFAULT']}
     ]);
     systemActions.getCounts({
       request: '/api/setting/counts',

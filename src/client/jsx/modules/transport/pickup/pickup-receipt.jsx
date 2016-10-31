@@ -72,7 +72,7 @@ var PickupReceipt = React.createClass({
       item_no: {
         id:'item_no',
         type:'text',
-        label:'pickupEdit.booking_no'
+        label:'pickupReceiptTable.item_nos'
       },
     }
 
@@ -89,6 +89,12 @@ var PickupReceipt = React.createClass({
 
   componentDidMount: function() {
     console.log(system.sessionStore.getSession());
+    if(this.state.puReceiptItems.length > 0){
+      console.log("puReceiptItems > 0");
+      this.setState({
+        puReceiptItems: []
+      });
+    }
   },
 
   handleChange: function(id, value) {
@@ -160,6 +166,11 @@ var PickupReceipt = React.createClass({
     this.setState({
       puReceiptItems: []
     });
+    this.state.pickup_no = "";
+    this.setState({
+      pickup_no: this.state.pickup_no
+    });
+    var existing = {};
     toasterActions.pop({
       type:'success',
       message:'Save pickup complete.'
@@ -167,6 +178,7 @@ var PickupReceipt = React.createClass({
   },
 
   onSavePickupReceiptErrorAction: function(error){
+    console.log("Err0r");
     toasterActions.pop({
       type:'warning',
       message:"Can't save data."
@@ -240,12 +252,12 @@ var PickupReceipt = React.createClass({
       <div className="flex-form">
       <div className="box10-flex">
         <div className="panel10 flex">
-          <h3>Recelve pickup container</h3>
+          <h3>Receive pickup container</h3>
         </div>
       </div>
       <div className="box10-flex">
         <div className="panel10 flex">
-          <h4>Recelve by barcode</h4>
+          <h4>Receive by barcode</h4>
         </div>
       </div>
       <div className="box10-flex">

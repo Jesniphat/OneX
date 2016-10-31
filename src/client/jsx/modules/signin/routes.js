@@ -5,7 +5,7 @@ const routeConfig = [
     getChildRoutes(location, cb) {
       require.ensure([], function(require) {
         cb(null, [
-          {path: ':param', component: require('./form.jsx')},
+          {path: ':access', component: require('./form.jsx')},
           {path: 'forgot', component: require('./forgot.jsx')},
         ])
       })

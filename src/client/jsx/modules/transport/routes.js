@@ -13,11 +13,11 @@ const routeConfig = {
   getChildRoutes(location, cb) {
     require.ensure([], (require) => {
       cb(null, [
-        require('./loadfare/routes'),
-        require('./customer/routes'),
-        require('./booking/routes'),
-        require('./home/routes'),
-        require('./report/routes'),
+        // require('./loadfare/routes'),
+        // require('./customer/routes'),
+        // require('./booking/routes'),
+        // require('./home/routes'),
+        // require('./report/routes'),
         require('./booking-list/routes'),
         require('./booking-list/routes1'),
         require('./booking-list/routes2'),
@@ -29,7 +29,11 @@ const routeConfig = {
         require('./booking-list/routes8'),
         require('./pickup/routes'),
         require('./pickup/routes-receipt'),
-        require('./intransit/routes')
+        require('./intransit/routes'),
+        require('./intransit/routes-receipt'),
+        require('./delivery/routes'),
+        require('./delivery/routes-receipt'),
+        // require('./payment-tracking/routes')
       ])
     })
   }

@@ -37,7 +37,7 @@ var RoleList = React.createClass({
         {name:'name', title:'role.name'},
         {name:'actions', type:'actions', width:(2*28+8)+'px', render:function(row) {
           return (<div className="flex">
-            <FlexIcon to="setting.role.edit" param={{id:row.id}} icon="create3" title="action.edit"></FlexIcon>
+            <FlexIcon to={'/setting/role/role_edit/'+row.id} icon="create3" title="action.edit"></FlexIcon>
             <FlexIcon icon="rubbish" title="action.delete" onClick={function(e) {this.doDelete(e, row.id)}.bind(this)}></FlexIcon>
           </div>);
         }.bind(this)}
@@ -49,7 +49,8 @@ var RoleList = React.createClass({
   },
 
   doRoleNew: function() {
-    this.context.router.transitionTo('setting.role.edit', {id:0});
+    // this.context.router.transitionTo('setting.role.edit', {id:0});
+    this.props.history.pushState(null, '/setting/role/role_edit/0');
   },
 
   doDelete: function(e, id) {

@@ -94,8 +94,8 @@ var RoleEdit = React.createClass({
       }
     };
 
-    var id = parseInt(this.context.router.getCurrentParams().id);
-
+    // var id = parseInt(this.context.router.getCurrentParams().id);
+    var id = this.props.params.id;
     return {
       id: id,
       data: helper.clone(resetData),
@@ -109,7 +109,8 @@ var RoleEdit = React.createClass({
   componentDidMount: function() {
     roleActions.facetEdit();
     if (this.state.id) {
-      roleActions.getById(this.context.router.getCurrentParams().id);
+      // roleActions.getById(this.context.router.getCurrentParams().id);
+      roleActions.getById(this.props.params.id);
     }
     infoPanelActions.show('setting.role', null);
   },

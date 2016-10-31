@@ -70,7 +70,7 @@ PointFare = React.createClass({
     if(this.props.routes[3].path == 'import_point') {
       action.listFarePoint();
     } else if(this.props.routes[3].path == 'import_reword') {
-      action.listFarePoint();
+      action.listFareReword();
     }
 
   },
@@ -87,7 +87,14 @@ PointFare = React.createClass({
 		const styles = {
 		  button: { margin: 12, width: 300, fontWeight: 'bold', marginLeft: 200 },
 		  title: { display:'block', paddingTop:15, fontWeight: 'bold', fontSize:20 },
-      dropzone: { width: '100%', border:'none' },
+      dropzone: { 
+        width: '100%', 
+        border:'none',
+        backgroundImage: 'url(/img/icon2/excel-2010-icon.png)',
+        backgroundSize: 112,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: '20px 30px'
+      },
       link: { marginLeft: 254, fontSize:12, cursor:'pointer', textDecoration:'underline' },
 		  depth: { height: 195, margin: '20px auto', textAlign: 'left' }
 		};
@@ -96,10 +103,9 @@ PointFare = React.createClass({
       <div className="content-page">
         <div className="content-header panelf" style={{ marginRight: 40 }}>
           	<Paper className="panel7" style={styles.depth} zDepth={1}>
-          	  <Dropzone ref="dropzone" disableClick={this.state.disabled} multiple={false} onDrop={this.onDrop} style={styles.dropzone}>
+          	  <div style={styles.dropzone}>
           	  	<div className="flex">
 					        <div className="panel2">
-										<i className="flaticon-microsoft8 flatbig" style={{ color:'green' }}></i>
 					        </div>
 					        <div className="panel6" style={{ textAlign: 'left' }}>
             				<T content="preliminary.fare.title" style={styles.title}/>
@@ -109,11 +115,13 @@ PointFare = React.createClass({
 										</ol>
 					        </div>
 					       </div>
-                 <button className={"ui positive button"+(this.state.disabled ? ' disabled' : '')} style={styles.button}>
-                  <i className="icon upload"></i>
-                  {this.state.filename}
-                </button>
-		      		</Dropzone>
+                  <Dropzone ref="dropzone" disableClick={this.state.disabled} multiple={false} onDrop={this.onDrop} style={styles.button}>
+                   <button className={"ui positive button"+(this.state.disabled ? ' disabled' : '')} style={{ width: '100%' }}>
+                    <i className="icon upload"></i>
+                    {this.state.filename}
+                   </button>
+                  </Dropzone>
+		      		</div>
               <div>
                 <a onClick={this.DownloadTemplate} style={styles.link}>click to download template xls file.</a>
               </div>

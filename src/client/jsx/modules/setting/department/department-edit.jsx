@@ -90,8 +90,8 @@ var DepartmentEdit = React.createClass({
       }
     };
 
-    var id = parseInt(this.context.router.getCurrentParams().id);
-
+    // var id = parseInt(this.context.router.getCurrentParams().id);
+    var id = this.props.params.id;
     return {
       id: id,
       data: helper.clone(resetData),
@@ -102,7 +102,7 @@ var DepartmentEdit = React.createClass({
   },
 
   componentDidMount: function() {
-    departmentActions.getById(this.context.router.getCurrentParams().id);
+    departmentActions.getById(this.props.params.id);
     infoPanelActions.show('setting.department', null);
   },
 

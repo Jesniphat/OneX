@@ -1,10 +1,15 @@
 module.exports = require('reflux').createActions({
-  'listPickup': {children: ['done','error']},
-  'exportPickupList': {children:['done', 'error']},
-  'getSearchBookingWait': {children:['done', 'error']},
-  'savePickup': {children:['done','error']},
+  'listIntransit': {children: ['done','error']},
+  'saveIntransit': {children:['done','error']},
   'updatePickup': {children:['done','error']},
-  'getPU': {children:['done','error']},
   'addBarcode': {children:['done','error']},
-  'savePickupReceipt': {children:['done','error']}
+  'savePickupReceipt': {children:['done','error']},
+  'getIntransitItemById': {children:['done','error']},
+  'updateIntransit': {children:['done','error']},
+  'addBarcodeRecipt': {children:['done','error']},
+  'saveIntransitReceipt': {children:['done','error']},
+  'genReport': {children:['done','error']},
+  'genBarcode': {children:['done','error']},
+  'saveExceptionIntransit': {children:['done','error']},
+  'getDistrict': {children:['done','error']}
 });

@@ -1,3 +1,3 @@
-module.exports = require("reflux").createActions([
-  'signin'
-]);
+module.exports = require('reflux').createActions({
+  'docUpload': {children:['done','error']}
+});

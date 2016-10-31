@@ -8,6 +8,7 @@ var memberPointApp   = require('./modules/member-point');
 var transportApp   = require('./modules/signin-transport');
 var RegisterApp   = require('./modules/customer');
 var FinishBooking = require('./modules/finish-booking');
+var FinishPayment = require('./modules/finish-payment');
 
 var path          = require('path');
 var db            = require('./lib/db');
@@ -48,7 +49,7 @@ app.use(session({
 
 app.use(express.static(path.normalize(__dirname + '/public')));
 
-app.use('/securestock/', apiApp);
+app.use('/onex/', apiApp);
 app.use('/booking-transport/', apiApp);
 
 app.use('/signin', signinApp);
@@ -56,6 +57,7 @@ app.use('/signin-customer', customerApp);
 app.use('/signin-transport', transportApp);
 app.use('/register', RegisterApp);
 app.use('/finish-booking', FinishBooking);
+app.use('/finish-payment', FinishPayment);
 app.use('/member-point', memberPointApp);
 
 app.get('/', function(req, res) {
@@ -67,7 +69,7 @@ app.get('/', function(req, res) {
     return;
   }
 
-  res.redirect('/securestock/');
+  res.redirect('/onex/');
 });
 
 
@@ -109,4 +111,3 @@ orawrap.createPool(config.oracledb.param, function(err, pool) {
    if (err) throw err;
    app.listen(config.server.port);
 });
-

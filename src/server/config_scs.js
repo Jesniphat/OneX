@@ -36,7 +36,7 @@ module.exports = {
     user: 'ss',
     pass: 'ss2015',
     debug: false,
-    connLimit: 100,
+    connLimit: 5,
     charset: 'utf8_unicode_ci'
   },
   oracledb: {

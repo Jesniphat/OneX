@@ -12,6 +12,11 @@ var xlsx        = require('node-xlsx');
 var nodemailer  = require('nodemailer');
 
 router.use('/pickup', require('./pickup/pickup'));
+router.use('/intransit', require('./intransit/intransit'));
+router.use('/delivery', require('./delivery/delivery'));
+router.use('/home', require('./home/home'));
+router.use('/report_action', require('./report_action/report_action'));
+router.use('/payment_tracking', require('./payment_tracking/payment_tracking'));
 
 var bookingFields = {
     booking_no:{name:'b.booking_no'},
@@ -19,23 +24,25 @@ var bookingFields = {
     pickup_place:{name:'b.pickup_place'},
     pickup_date:{name:'b.pickup_date'},
     type:{name:'p.type'},
-    real_delivery_date:{name:'b.real_delivery_date'},
-    booking_date:{shop_name:'b.booking_date'}
+    deliveried_date:{name:'b.deliveried_date'},
+    booking_date:{name:'b.booking_date'},
+    payment_status:{name:'b.payment_status'},
+    receipt_type:{name:'b.receipt_type'}
 };
 
 var pickupFields = {
   id:{name:'id'},
   pickup_no:{name:'pickup_no'},
-  pickup_date:{pickup_date:'pickup_date'},
-  booking_qty:{booking_qty:'booking_qty'},
-  city_district:{city_district:'city_district'},
-  prepare_by:{prepare_by:'prepare_by'},
-  vehicle:{vehicle:'vehicle'},
-  driver:{driver:'driver'},
-  plan_qty:{plan_qty:'plan_qty'},
-  pickup_qty:{pickup_qty:'pickup_qty'},
-  status:{status:'status'},
-  remark_status:{remark_status:'remark_status'}
+  pickup_date:{name:'pickup_date'},
+  booking_qty:{name:'booking_qty'},
+  city_district:{name:'city_district'},
+  prepare_by:{name:'prepare_by'},
+  vehicle:{name:'vehicle'},
+  driver:{name:'driver'},
+  plan_qty:{name:'plan_qty'},
+  pickup_qty:{name:'pickup_qty'},
+  status:{name:'status'},
+  remark_status:{name:'remark_status'}
 
 };
 
@@ -50,7 +57,8 @@ router.post('/listWaitClearCreditCard',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'WAIT_CLEAR_CREDIT_CARD' ";
   //console.log("list Booking = ", mainQuery);
@@ -74,7 +82,7 @@ router.post('/listWaitClearCreditCard',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
       hasJoin = true;
     }
   }
@@ -119,7 +127,7 @@ router.post('/listWaitClearCreditCard',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -161,8 +169,9 @@ router.post('/listWaitAssign',[bodyParser.json()], function(req, res){
   var $scope = {};
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "CASE WHEN receipt_type = 'CREDIT' THEN 'CREDITCARD' ELSE receipt_type END AS receipt_type, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'WAIT_ASSIGN' ";
   //console.log("list Booking = ", mainQuery);
@@ -186,7 +195,7 @@ router.post('/listWaitAssign',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'receipt_type') {
       hasJoin = true;
     }
   }
@@ -231,7 +240,7 @@ router.post('/listWaitAssign',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -274,7 +283,7 @@ router.post('/listInprocess',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'INPROCESS' ";
   //console.log("list Booking = ", mainQuery);
@@ -298,7 +307,7 @@ router.post('/listInprocess',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date') {
       hasJoin = true;
     }
   }
@@ -343,7 +352,7 @@ router.post('/listInprocess',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -387,7 +396,7 @@ router.post('/listInTransit',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'INTRANSIT' ";
   //console.log("list Booking = ", mainQuery);
@@ -411,7 +420,7 @@ router.post('/listInTransit',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date') {
       hasJoin = true;
     }
   }
@@ -456,7 +465,7 @@ router.post('/listInTransit',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -498,7 +507,7 @@ router.post('/listArrived',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'ARRIVED' ";
   //console.log("list Booking = ", mainQuery);
@@ -522,7 +531,7 @@ router.post('/listArrived',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date') {
       hasJoin = true;
     }
   }
@@ -567,7 +576,7 @@ router.post('/listArrived',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -609,7 +618,7 @@ router.post('/listDelivered',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'DELIVERIED' ";
   //console.log("list Booking = ", mainQuery);
@@ -633,7 +642,7 @@ router.post('/listDelivered',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date') {
       hasJoin = true;
     }
   }
@@ -678,7 +687,7 @@ router.post('/listDelivered',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -721,7 +730,7 @@ router.post('/listException',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'EXCEPTION' ";
   //console.log("list Booking = ", mainQuery);
@@ -745,7 +754,7 @@ router.post('/listException',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date') {
       hasJoin = true;
     }
   }
@@ -790,7 +799,7 @@ router.post('/listException',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -832,7 +841,7 @@ router.post('/listCancel',[bodyParser.json()], function(req, res){
 
   var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
                 + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
-                + "b.real_delivery_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date "
                 + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
                 + "WHERE status = 'CANCEL' ";
   //console.log("list Booking = ", mainQuery);
@@ -856,7 +865,7 @@ router.post('/listCancel',[bodyParser.json()], function(req, res){
     }
     cond.push(tmp);
     if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
-        fld=='real_delivery_date' || fld == 'booking_date') {
+        fld=='deliveried_date' || fld == 'booking_date') {
       hasJoin = true;
     }
   }
@@ -901,7 +910,7 @@ router.post('/listCancel',[bodyParser.json()], function(req, res){
       ' ORDER BY ' + sortBy + ' ' + sortDir +
       ' LIMIT ' + (page * limit) + ', ' + limit;
     //console.log("Maia sql = ", sql);
-    return db.queryArray(sql).then(function(rows) {
+    return db.query(sql).then(function(rows) {
       $scope.rows = rows;
     });
   }
@@ -982,14 +991,72 @@ router.post('/changeStatusBooking',[bodyParser.json()], function(req, res) {
   var $scope = {};
   $scope.booking_id = req.body.id;
 
-  var changeBooking = function() {
-      var sql = "UPDATE booking SET status='WAIT_ASSIGN', updated_at=NOW() WHERE id=:id";
+  var _code = function() {
+    console.log("genCode");
+    Date.prototype.yyyymmdd = function() {
+     var yyyy = this.getFullYear().toString();
+     var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
+     var dd  = this.getDate().toString();
+     return yyyy + (mm[1]?mm:"0"+mm[0]); // padding
+    };
 
+    var d = new Date();
+    var p = d.yyyymmdd();
+    var c =  p.substr(2);
+    var prefix = c;
+     $scope = {
+       table:"booking",
+       fld:"booking_no",
+       fld_waybill:"waybill",
+       prefix:p,
+       prefix_waybill:"onex" + p,
+       size:-5,
+       start:1,
+       p:p
+     }
+    return true;
+  }
+
+  var _genWaybill = function() {
+      console.log('_getNextWayBillCode');
+
+      var sql = "SELECT max(`" + $scope.fld_waybill + "`) maxCode FROM `" + $scope.table + "`";
+      if ($scope.prefix_waybill != '') {
+        sql += " WHERE `" + $scope.fld_waybill + "` LIKE '" + $scope.prefix_waybill + "%'";
+      }
+      $scope.sql = sql;
+      return q.all([
+        (function() {
+          return db.query($scope.sql).then(function(data) {
+              console.log("data = ", data[0].maxCode);
+              $scope.maxCode = data[0].maxCode;
+              var maxCode = $scope.maxCode;
+              console.log("maxCode = ", maxCode);
+              var next = "";
+              if (maxCode===false || maxCode==undefined || maxCode==null) {
+                next = $scope.start + 0;
+              } else {
+                next = parseInt(maxCode.substr($scope.prefix_waybill.length)) + 1;
+              }
+              console.log("next = ", next);
+              $scope.newWaybillCode = $scope.prefix_waybill + "" + ('0000000000000'+ next).substr($scope.size); // new code
+              // $scope.newWaybill = ""; // more new code
+              console.log("$scope.newWaybillCode = ", $scope.newWaybillCode);
+            });
+        })()
+      ]);
+  }
+
+  var changeBooking = function() {
+      var sql = "UPDATE booking SET status='WAIT_ASSIGN', waybill = '" + $scope.newWaybillCode + "', updated_at=NOW() WHERE id=:id";
+      console.log("sql = ", sql);
       return db.query(sql, req.body);
     }
 
     var db = conn.connect();
     db.beginTransaction()
+      .then(_code)
+      .then(_genWaybill)
       .then(changeBooking)
       .then(function(){
         db.commit();
@@ -1143,7 +1210,7 @@ router.post('/getRate', [bodyParser.json()], function(req, res) {
     (function() {
       // var query = "SELECT r.* FROM excel_zone z INNER JOIN excel_rate r on z.zone = r.zone WHERE CONCAT(z.city_origin,'-',z.district_origin) = '" + req.body.from
       //           + "' AND CONCAT(z.city_destination,'-',z.district_destination) = '" + req.body.to + "' AND r.service_type = '" + req.body.type +"';";
-      var query = "SELECT r.*,z.country_origin FROM excel_zone z INNER JOIN excel_rate r on z.zone = r.zone WHERE z.district_origin = '" + req.body.from
+      var query = "SELECT r.*,z.country_origin, z.country_destination FROM excel_zone z INNER JOIN excel_rate r on z.zone = r.zone WHERE z.district_origin = '" + req.body.from
                 + "' AND z.district_destination = '" + req.body.to + "' AND r.service_type = '" + req.body.type +"';";
        console.log("query = ", query);
       return db.query(query).then(function(rows) {
@@ -1237,8 +1304,10 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
      $scope = {
        table:"booking",
        fld:"booking_no",
-       prefix:prefix,
-       size:-4,
+       fld_waybill:"waybill",
+       prefix:p,
+       prefix_waybill:"onex" + p,
+       size:-5,
        start:1,
        p:p
      }
@@ -1266,8 +1335,8 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
               next = parseInt(maxCode.substr($scope.prefix.length)) + 1;
             }
             console.log("next = ", next);
-            $scope.newCode = $scope.prefix + ('0000000000000'+ next).substr($scope.size); // new code
-            $scope.newWaybill = $scope.p + " " + ('0000000000000'+ next).substr($scope.size);; // more new code
+            $scope.newCode = $scope.prefix + "" + ('0000000000000'+ next).substr($scope.size); // new code
+            $scope.newWaybill = ""; // more new code
             console.log("$scope.newCode = ",$scope.newCode, $scope.newWaybill);
           });
       })()
@@ -1280,14 +1349,22 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
     req.body.booking_no = $scope.newCode;
     req.body.waybill = $scope.newWaybill;
     req.body.deliveryDate = (req.body.deliveryDate).substring(0, 10);
+    req.body.booking_status = "WAIT_CLEAR_CREDIT_CARD";
+    if(req.body.paymentType == "billing"){
+      req.body.booking_status = "WAIT_ASSIGN";
+    }
     //console.log("obj = ", req.body);
 
     var sql = "insert into booking(booking_no,booking_date,customer_id,from_place,to_place,sender,receipient,pickup_place,pickup_date,"
             + "package_contents,item_qty,discount_amount,discount_percent,charge_amount,receipt_type,"
-            + "total_amount,receipt_amount,currency_id,zone,rate,total_weight,total_volume_weight,waybill,delivery_type,country_origin) "
+            + "total_amount,receipt_amount,currency_id,zone,rate,total_weight,total_volume_weight,"
+            + "waybill,delivery_type,country_origin,country_destination,created_by,updated_by,status,"
+            + "total,vat_amount,vat_rate,grand_total_amount) "
             + "values(:booking_no, NOW(), :customer_id, :from, :to, :sender, :receipient, :picUpPlace, :picUpDate, "
             + ":content, :itemQty, :discount_amount, :discount_percent, :charge_amount,:paymentType, "
-            + ":totalAmount, :totalAmount, :currency_id, :zone, :rate, :total_weight, :total_volume_weight, :waybill, :deliveryType, :country_origin) ";
+            + ":totalAmount, :totalAmount, :currency_id, :zone, :rate, :total_weight, :total_volume_weight, "
+            + ":waybill, :deliveryType, :country_origin, :country_destination, :staff_id, :staff_id, :booking_status, "
+            + ":total, :vat_amount, :vat_rate, :grand_total_amount) ";
 
     return db.query(sql, req.body).then(function(res) {
       $scope.booking_id = res.insertId;
@@ -1300,7 +1377,7 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
       console.log("payment type = ", req.body.paymentType,req.body.customer_id);
       var sql = "INSERT INTO transport_invoice (currency_id,booking_id,invoice_no,invoice_amount,"
               + "real_invoice,qty,created_by,updated_by,invoice_addr) "
-              + "VALUES(:currency_id,:booking_id,:invoice_no,:totalAmount,:totalAmount,:itemQty,:customer_id,:customer_id,:invoiceName)"
+              + "VALUES(:currency_id,:booking_id,:invoice_no,:totalAmount,:totalAmount,:itemQty,:staff_id,:staff_id,:invoiceName)"
 
     return db.query(sql, req.body).then(function(res) {
       $scope.invoice_id = res.insertId;
@@ -1358,13 +1435,13 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
       }
       var n = 0;
           n = (i+1);
-      var itemCode = ($scope.newWaybill + " " + a + "" + n );
+      var itemCode = ($scope.newCode + " " + a + "" + n );
 
       req.body.bookingDetail[i].itemCode = itemCode;
 
       var sql = "insert into booking_item(booking_id, booking_detail_id, item_no, booking_date, item_qty, item_values, item_weight, item_total_price,"
         + " booking_name, package_contents_type, commodities_id, package_contents)"
-        + " VALUES (:booking_id, :booking_detail_id, :itemCode, NOW(), :qty, :volume_weight, :width, :total_price,"
+        + " VALUES (:booking_id, :booking_detail_id, :itemCode, NOW(), :qty, :volume_weight, :weight, :total_price,"
         + " :name, :packageType, :contentId, :packageContent)";
         //console.log(sql);
       return db.query(sql, req.body.bookingDetail[i]);
@@ -1392,6 +1469,50 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
     }
 
 
+  var _genWaybill = function() {
+      console.log('_getNextWayBillCode');
+      console.log("req.body.paymentType = ",req.body.paymentType);
+      if(req.body.paymentType == 'credit'){
+        $scope.newWaybillCode = "";
+        return true;
+      } else {
+
+      var sql = "SELECT max(`" + $scope.fld_waybill + "`) maxCode FROM `" + $scope.table + "`";
+      if ($scope.prefix_waybill != '') {
+        sql += " WHERE `" + $scope.fld_waybill + "` LIKE '" + $scope.prefix_waybill + "%'";
+      }
+      $scope.sql = sql;
+      return q.all([
+        (function() {
+          return db.query($scope.sql).then(function(data) {
+              console.log("data = ", data[0].maxCode);
+              $scope.maxCode = data[0].maxCode;
+              var maxCode = $scope.maxCode;
+              console.log("maxCode = ", maxCode);
+              var next = "";
+              if (maxCode===false || maxCode==undefined || maxCode==null) {
+                next = $scope.start + 0;
+              } else {
+                next = parseInt(maxCode.substr($scope.prefix_waybill.length)) + 1;
+              }
+              console.log("next = ", next);
+              $scope.newWaybillCode = $scope.prefix_waybill + "" + ('0000000000000'+ next).substr($scope.size); // new code
+              // $scope.newWaybill = ""; // more new code
+              console.log("$scope.newWaybillCode = ", $scope.newWaybillCode);
+            });
+        })()
+      ]);
+    }
+  }
+
+  var updateWaybill = function(){
+    var sql = "UPDATE booking SET waybill = '" + $scope.newWaybillCode + "' WHERE id = '" + $scope.booking_id + "'";
+    return db.query(sql).then(function(data){
+      console.log("updateWaybill = ", data);
+    });
+  }
+
+
   var db = conn.connect();
   db.beginTransaction()
     .then(_code)
@@ -1402,6 +1523,8 @@ router.post('/saveBooking', [bodyParser.json()], function(req, res){
     .then(editQty)
     .then(insertBookingItem)
     .then(insertInvoiceDetail)
+    .then(_genWaybill)
+    .then(updateWaybill)
     .then(function(){
         db.commit();
         res.send({
@@ -1670,8 +1793,10 @@ router.post('/booking_report', [bodyParser.json()], function(req, res) {
               + "FORMAT(b.charge_amount,2) charge_amount, FORMAT(b.total_amount,2) total_amount, bd.booking_name, sum(bd.qty) qty, "
               + "CONCAT(bd.width,' CM') width, CONCAT(bd.depth,' CM') depth, CONCAT(bd.height,' CM') height, UPPER(b.payment_status) payment_status, "
               + "FORMAT(sum(bd.total_price),2) total_price, CASE WHEN b.currency_id = '1' THEN 'THB' ELSE 'USD' END AS currency, "
-              + "CONCAT((CASE WHEN b.total_weight > b.total_volume_weight THEN b.total_weight ELSE b.total_volume_weight END),' Kgs.') AS chargeable "
+              + "CONCAT((CASE WHEN b.total_weight > b.total_volume_weight THEN b.total_weight ELSE b.total_volume_weight END),' Kgs.') AS chargeable, "
+              + "FORMAT(vs.total,2) AS sub_total, FORMAT(b.vat_amount,2) AS vat_amount, CONCAT('Vat (', b.vat_rate, '%)') AS vat_text, FORMAT(b.grand_total_amount,2) AS grand_total_amount "
               + "FROM booking b INNER JOIN booking_detail bd ON b.id = bd.booking_id INNER JOIN customer c ON b.customer_id = c.id "
+              + "LEFT JOIN v_sumItem_price vs ON b.id = vs.booking_id "
               + "WHERE b.id = '" + req.body.bookingId + "' "
               + "GROUP BY b.id, b.booking_no, b.booking_date, b.waybill, b.sender, b.receipient, b.item_qty, b.discount_amount, "
               + "b.charge_amount, total_amount, bd.booking_name, bd.width, bd.depth, bd.height, b.discount_amount, b.total_weight, "
@@ -1839,7 +1964,9 @@ router.post('/invoice_report', [bodyParser.json()], function(req, res) {
               + "CONCAT('-',FORMAT(b.discount_amount,2)) discount_amount, FORMAT(b.total_amount,2) total_amount, FORMAT(b.charge_amount,2) charge_amount, "
               + "CASE WHEN b.currency_id = '1' THEN 'PRICE(THB)' WHEN b.currency_id = '2' THEN 'PRICE(USD)' END AS price_text, "
               + "CASE WHEN b.currency_id = '1' THEN 'AMOUNT(THB)' WHEN b.currency_id = '2' THEN 'AMOUNT(USD)' END AS amount_text, "
-              + "FLOOR(b.total_amount) AS total_amount_text, CASE WHEN b.currency_id = '1' THEN 'baht' WHEN b.currency_id = '2' THEN 'dollar' END AS unit_c "
+              + "FLOOR(b.grand_total_amount) AS total_amount_text, CASE WHEN b.currency_id = '1' THEN 'baht' WHEN b.currency_id = '2' THEN 'dollar' END AS unit_c, "
+              + "CASE WHEN b.currency_id = '1' THEN 'satang' WHEN b.currency_id = '2' THEN 'cent' END AS unit_z, "
+              + "FORMAT(b.vat_amount,2) vat_amount, FORMAT(b.grand_total_amount,2) grand_total_amount, CONCAT('Vat (', b.vat_rate, '%)') AS vat_text "
               + "FROM booking b INNER JOIN transport_invoice t ON b.id=t.booking_id INNER JOIN "
               + "transport_invoice_detail td ON t.id = td.transport_invoice_id INNER JOIN v_sumItem_price vsp ON b.id=vsp.booking_id "
               + "WHERE b.id = '" + req.body.bookingId + "' "
@@ -1850,12 +1977,21 @@ router.post('/invoice_report', [bodyParser.json()], function(req, res) {
         if (rows.length===0) {
           throw 'contract.error.contract_id_not_found';
         }
-        // console.log("Data = ", rows);  numberToEnglish
+        // console.log("Data Before = ", rows);  numberToEnglish
         for(var i = 0; i < rows.length; i++){
-            rows[i].amountText = "(" + helper.numberToEnglish(rows[i].total_amount_text) + " " + rows[i].unit_c + ")";
-            console.log("Invoice Text M = ",rows[i].amountText,rows[i].total_amount_text);
+            var tt_text = rows[i].grand_total_amount.toString();
+            console.log(tt_text);
+            var afterDotIndex = rows[i].grand_total_amount.indexOf(".");
+            var after = rows[i].grand_total_amount.substr(afterDotIndex + 1);
+            var afterText = "";
+            if(after != '00' || after != 00 || after != 0){
+              afterText = " " + helper.numberToEnglish(after) + " " + rows[i].unit_z;
+            }
+            console.log("afterText = ", afterText);
+            rows[i].amountText = "(" + helper.numberToEnglish(rows[i].total_amount_text) + " " + rows[i].unit_c + afterText + ")";
+            console.log("Invoice Text M = ",rows[i].amountText);
         }
-        console.log("Data = ", rows);
+        // console.log("Data = ", rows);
         $scope.reportData = rows;
       });
 
@@ -1929,10 +2065,12 @@ var getData = function() {
       var sql = "SELECT DISTINCT b.id, b.booking_no, DATE_FORMAT(b.booking_date,'%d %b %Y') AS booking_date, b.waybill, b.sender, b.receipient, "
               + "b.item_qty, CONCAT('-',FORMAT(b.discount_amount,2)) discount_amount, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, "
               + "CONCAT(b.total_weight,' Kgs.') total_weight, CONCAT(b.total_volume_weight,' Kgs.') total_volume_weight, "
-              + "FORMAT(b.charge_amount,2) charge_amount, FORMAT(b.total_amount,2) total_amount, "
-              + "CASE WHEN b.currency_id = '1' THEN 'THB' ELSE 'USD' END AS currency, "
-              + "CONCAT((CASE WHEN b.total_weight > b.total_volume_weight THEN b.total_weight ELSE b.total_volume_weight END),' Kgs.') AS chargeable "
+              + "FORMAT(b.charge_amount,2) charge_amount, FORMAT(b.total_amount,2) total_amount, p.email, "
+              + "CASE WHEN b.currency_id = '1' THEN 'THB' ELSE 'USD' END AS currency, b.payment_status, "
+              + "CONCAT((CASE WHEN b.total_weight > b.total_volume_weight THEN b.total_weight ELSE b.total_volume_weight END),' Kgs.') AS chargeable, "
+              + "FORMAT(b.grand_total_amount,2) grand_total_amount, FORMAT(b.vat_amount,2) vat_amount, CONCAT('Vat (', b.vat_rate, '%)') AS vat_text "
               + "FROM booking b INNER JOIN booking_detail bd ON b.id = bd.booking_id INNER JOIN customer c ON b.customer_id = c.id "
+              + "INNER JOIN person p ON c.person_id = p.id "
               + "WHERE b.id = '" + booking_id + "'";
 
       return db.query(sql,{}).then(function(rows) {
@@ -1985,20 +2123,20 @@ var renderEmail = function(){
     //return true;
     console.log("Sent Email");
     var emailData = $scope.emailData[0];
-    //var booking_id = 98;
+    // console.log("emailData = ", emailData);
     var smtpTransport = nodemailer.createTransport('smtps://test.onex.nippon%40gmail.com:p@ssw0rd3@smtp.gmail.com');
 
     // setup e-mail data with unicode symbols
     var mailOptions = {
-        from: "Test Onex <test.onex.nippon@gmail.com>", // sender address
-        to: "jesniphat@hotmail.com", // list of receivers
+        from: "Onex <test.onex.nippon@gmail.com>", // sender address
+        to: $scope.emailData[0].email, // list of receivers
         subject: "Logistic One :: Shipment Confirmation Booking no. " + emailData.booking_no, // Subject line
         //text: "Hello world", // plaintext body
         html: "<div style='width:590px;min-height:842px;position:relative; font-family: Arial; margin:auto;'>"+
                     "</br>"+
                     "<table style='width:590px;'>"+
                         "<tr style='height:30px; text-align:right; font-size: 18px;'>"+
-                            "<th colspan='4'>SHIPMENT CONFIRM</th>"+
+                            "<th colspan='4'>BOOKING CONFIRMATION</th>"+
                         "</tr>"+
                         "<tr style='text-align: right; font-size: 13px;'>"+
                             "<td style='width:25%'></td>"+
@@ -2032,9 +2170,9 @@ var renderEmail = function(){
                     "</br>"+
                     "<table style='width:590px;'>"+
                         "<tr style='text-align: left; font-size: 12px;'>"+
-                            "<td style='width:110px; vertical-align:top;'><b>Shipment from</b></td>"+
+                            "<td style='width:110px; vertical-align:top;'><b>Sender</b></td>"+
                             "<td style='width:185px;'>" + emailData.sender + "</td>"+
-                            "<td style='width:110px; vertical-align:top;'><b>Shipment to</b></td>"+
+                            "<td style='width:110px; vertical-align:top;'><b>Receipient</b></td>"+
                             "<td style='width:185px'>" + emailData.receipient + "</td>"+
                         "</tr>"+
                     "</table>"+
@@ -2106,36 +2244,32 @@ var renderEmail = function(){
                             "<td style='width:45px; text-align: right;'>USD</td>"+
                         "</tr>"+
                         "<tr style='font-size: 12px;'>"+
+                            "<td style='width:270px;'>" + emailData.vat_text + "</td>"+
+                            "<td style='width:55px; text-align: center;'></td>"+
+                            "<td style='width:55px; text-align: right;'></td>"+
+                            "<td style='width:55px; text-align: right;'></td>"+
+                            "<td style='width:55px; text-align: right;'></td>"+
+                            "<td style='width:55px; text-align: right;'>" + emailData.vat_amount + "</td>"+
+                            "<td style='width:45px; text-align: right;'>USD</td>"+
+                        "</tr>"+
+                        "<tr style='font-size: 12px;'>"+
                             "<td style='width:270px;'><b>Grand Total</b></td>"+
                             "<td style='width:55px; text-align: center;'></td>"+
                             "<td style='width:55px; text-align: right;'></td>"+
                             "<td style='width:55px; text-align: right;'></td>"+
                             "<td style='width:55px; text-align: right;'></td>"+
-                            "<td style='width:55px; text-align: right;'><b>" + emailData.total_amount + "</b></td>"+
+                            "<td style='width:55px; text-align: right;'><b>" + emailData.grand_total_amount + "</b></td>"+
                             "<td style='width:45px; text-align: right;'><b>USD</b></td>"+
                         "</tr>"+
                     "</table>"+
                     "</br>"+
                     "<div style='width:590px; height:16px; background-color:lightgray; font-size:12px; padding-top:2px'>"+
-                        "<b>Billing Information</b>"+
+                        "<b>Payment Information</b>"+
                     "</div>"+
                     "</br>"+
                     "<table style='width:590px; border-bottom:solid 1px;'>"+
                         "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Bank</b></td>"+
-                            "<td style='width:490px;'>Kasikorn thai</td>"+
-                        "</tr>"+
-                        "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Branch</b></td>"+
-                            "<td style='width:490px;'>eeeeeeee</td>"+
-                        "</tr>"+
-                        "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Account</b></td>"+
-                            "<td style='width:490px;'>888888888</td>"+
-                        "</tr>"+
-                        "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Account Name</b></td>"+
-                            "<td style='width:490px;'>One X</td>"+
+                            "<td style='width:100px;'><b> "+ emailData.payment_status + "</b></td>"+
                         "</tr>"+
                     "</table>"+
                     "</br>"+
@@ -2218,10 +2352,12 @@ var getData = function() {
       var sql = "SELECT DISTINCT b.id, b.booking_no, DATE_FORMAT(b.booking_date,'%d %b %Y') AS booking_date, b.waybill, b.sender, b.receipient, "
               + "b.item_qty, CONCAT('-',FORMAT(b.discount_amount,2)) discount_amount, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, "
               + "CONCAT(b.total_weight,' Kgs.') total_weight, CONCAT(b.total_volume_weight,' Kgs.') total_volume_weight, "
-              + "FORMAT(b.charge_amount,2) charge_amount, FORMAT(b.total_amount,2) total_amount, "
-              + "CASE WHEN b.currency_id = '1' THEN 'THB' ELSE 'USD' END AS currency, "
-              + "CONCAT((CASE WHEN b.total_weight > b.total_volume_weight THEN b.total_weight ELSE b.total_volume_weight END),' Kgs.') AS chargeable "
+              + "FORMAT(b.charge_amount,2) charge_amount, FORMAT(b.total_amount,2) total_amount, p.email, "
+              + "CASE WHEN b.currency_id = '1' THEN 'THB' ELSE 'USD' END AS currency, b.payment_status, "
+              + "CONCAT((CASE WHEN b.total_weight > b.total_volume_weight THEN b.total_weight ELSE b.total_volume_weight END),' Kgs.') AS chargeable, "
+              + "FORMAT(b.grand_total_amount,2) grand_total_amount, FORMAT(b.vat_amount,2) vat_amount, CONCAT('Vat (', b.vat_rate, '%)') AS vat_text "
               + "FROM booking b INNER JOIN booking_detail bd ON b.id = bd.booking_id INNER JOIN customer c ON b.customer_id = c.id "
+              + "INNER JOIN person p ON c.person_id = p.id "
               + "WHERE b.id = '" + booking_id + "'";
 
       return db.query(sql,{}).then(function(rows) {
@@ -2279,7 +2415,7 @@ var renderEmail = function(){
 
     // setup e-mail data with unicode symbols
     var mailOptions = {
-        from: "Test Onex <test.onex.nippon@gmail.com>", // sender address
+        from: "Onex <test.onex.nippon@gmail.com>", // sender address
         to: req.body.email, // list of receivers
         subject: "Logistic One :: Shipment Confirmation Booking no. " + emailData.booking_no, // Subject line
         //text: "Hello world", // plaintext body
@@ -2287,7 +2423,7 @@ var renderEmail = function(){
                     "</br>"+
                     "<table style='width:590px;'>"+
                         "<tr style='height:30px; text-align:right; font-size: 18px;'>"+
-                            "<th colspan='4'>SHIPMENT CONFIRM</th>"+
+                            "<th colspan='4'>BOOKING CONFIRMATION</th>"+
                         "</tr>"+
                         "<tr style='text-align: right; font-size: 13px;'>"+
                             "<td style='width:25%'></td>"+
@@ -2321,9 +2457,9 @@ var renderEmail = function(){
                     "</br>"+
                     "<table style='width:590px;'>"+
                         "<tr style='text-align: left; font-size: 12px;'>"+
-                            "<td style='width:110px; vertical-align:top;'><b>Shipment from</b></td>"+
+                            "<td style='width:110px; vertical-align:top;'><b>Sender</b></td>"+
                             "<td style='width:185px;'>" + emailData.sender + "</td>"+
-                            "<td style='width:110px; vertical-align:top;'><b>Shipment to</b></td>"+
+                            "<td style='width:110px; vertical-align:top;'><b>Recipient</b></td>"+
                             "<td style='width:185px'>" + emailData.receipient + "</td>"+
                         "</tr>"+
                     "</table>"+
@@ -2395,36 +2531,32 @@ var renderEmail = function(){
                             "<td style='width:45px; text-align: right;'>USD</td>"+
                         "</tr>"+
                         "<tr style='font-size: 12px;'>"+
+                            "<td style='width:270px;'>" + emailData.vat_text + "</td>"+
+                            "<td style='width:55px; text-align: center;'></td>"+
+                            "<td style='width:55px; text-align: right;'></td>"+
+                            "<td style='width:55px; text-align: right;'></td>"+
+                            "<td style='width:55px; text-align: right;'></td>"+
+                            "<td style='width:55px; text-align: right;'>" + emailData.vat_amount + "</td>"+
+                            "<td style='width:45px; text-align: right;'>USD</td>"+
+                        "</tr>"+
+                        "<tr style='font-size: 12px;'>"+
                             "<td style='width:270px;'><b>Grand Total</b></td>"+
                             "<td style='width:55px; text-align: center;'></td>"+
                             "<td style='width:55px; text-align: right;'></td>"+
                             "<td style='width:55px; text-align: right;'></td>"+
                             "<td style='width:55px; text-align: right;'></td>"+
-                            "<td style='width:55px; text-align: right;'><b>" + emailData.total_amount + "</b></td>"+
+                            "<td style='width:55px; text-align: right;'><b>" + emailData.grand_total_amount + "</b></td>"+
                             "<td style='width:45px; text-align: right;'><b>USD</b></td>"+
                         "</tr>"+
                     "</table>"+
                     "</br>"+
                     "<div style='width:590px; height:16px; background-color:lightgray; font-size:12px; padding-top:2px'>"+
-                        "<b>Billing Information</b>"+
+                        "<b>Payment Information</b>"+
                     "</div>"+
                     "</br>"+
                     "<table style='width:590px; border-bottom:solid 1px;'>"+
                         "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Bank</b></td>"+
-                            "<td style='width:490px;'>Kasikorn thai</td>"+
-                        "</tr>"+
-                        "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Branch</b></td>"+
-                            "<td style='width:490px;'>eeeeeeee</td>"+
-                        "</tr>"+
-                        "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Account</b></td>"+
-                            "<td style='width:490px;'>888888888</td>"+
-                        "</tr>"+
-                        "<tr style='font-size: 12px;'>"+
-                            "<td style='width:100px;'><b>Account Name</b></td>"+
-                            "<td style='width:490px;'>One X</td>"+
+                            "<td style='width:100px;'><b> "+ emailData.payment_status + "</b></td>"+
                         "</tr>"+
                     "</table>"+
                     "</br>"+
@@ -2516,5 +2648,1010 @@ router.post('/list_farerate', function(req, res) {
   });
 });
 
+////////////////////////////////////////////////////////////////////////////////
+///////  getPersonType   ///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/getPersonType', [bodyParser.json()], function(req, res) {
+  console.log("getPersonType = ", req.body);
+  var $scope = {};
+  var db = conn.connect();
+  var getType = function() {
+    var sql = "SELECT `type` FROM person where id =:person_id"
+
+    return db.query(sql, req.body).then(function(rows) {
+      if (rows.length > 0) {
+        $scope.person_type = rows[0];
+        console.log("data = ", $scope.person_type);
+      } else {
+        $scope.person_type = "x";
+      }
+    });
+  }
+
+  q.all([
+    getType()
+  ]).then(function() {
+    res.send({
+      status:true,
+      person_type: $scope.person_type
+    });
+  }).catch(function(e) {
+    res.send({
+      status:false,
+      error:e
+    })
+  })
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+/////////       getPickUptime   ////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+router.post('/getPickUptime', [bodyParser.json()], function(req, res) {
+  var db = conn.connect();
+  var $scope = {};
+  console.log("Server getPickUptime");
+  q.all([
+    (function() {
+      var query = "SELECT DISTINCT pickup_time AS value, pickup_time AS text FROM pickup_time ";
+      return db.query(query).then(function(rows) {
+          $scope.pickUpTime = rows;
+        });
+    })()
+  ]).then(function() {
+    res.send({ status:true, data: { pickupTime: $scope.pickUpTime } });
+  }).catch(function(e) {
+    res.send({ status:false, error:e });
+  })
+});
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////  getCompanyProfile   //////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/getCompanyProfile', [bodyParser.json()], function(req, res) {
+  var db = conn.connect();
+  var $scope = {};
+  console.log("Server getCompanyProfile");
+  q.all([
+    (function() {
+      var query = "SELECT * FROM company_profile";
+      return db.query(query).then(function(rows) {
+          $scope.conpany_profile = rows;
+        });
+    })()
+  ]).then(function() {
+    res.send({
+      status:true,
+      data: {
+        conpany_profile: $scope.conpany_profile
+      }
+    });
+  }).catch(function(e) {
+    res.send({ status:false, error:e });
+  })
+});
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////   exportWaitClearCreditCard   //////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportWaitClearCreditCard',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'WAIT_CLEAR_CREDIT_CARD' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListWaitCrearCredit_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/waitcrearcredit_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////   exportWaitAssign   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportWaitAssign',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'WAIT_ASSIGN' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListWaitAssign_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/waitassign_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////   exportInprocess   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportInprocess',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'INPROCESS' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListInProcess_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/inprocess_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////   exportInprocess   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportInTransit',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'INTRANSIT' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListInTransit_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/intransit_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////   exportArrived   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportArrived',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'ARRIVED' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListInTransit_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/arrived_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
 
 module.exports = router;
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////   exportDelivered   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportDelivered',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'DELIVERIED' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListInTransit_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/delivered_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
+
+////////////////////////////////////////////////////////////////////////////////
+///////        exportException        //////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportException',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'EXCEPTION' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListInTransit_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/exceotion_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////   exportCancel   //////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+router.post('/exportCancel',[bodyParser.json()], function(req, res){
+  console.log("come to export.");
+  var db = conn.connect();
+  var $scope = {};
+
+  var mainQuery = "SELECT b.id, b.booking_no, CONCAT(p.firstname,' ',p.lastname) customer_name, "
+                + "b.pickup_place, DATE_FORMAT(b.pickup_date,'%d %b %Y') AS pickup_date, p.type, "
+                + "b.deliveried_date, DATE_FORMAT(b.booking_date,'%d %b %Y %T') AS booking_date, "
+                + "case b.payment_status when 'paid' then 'PAID' when 'pending' then 'PENDING' else 'UNPAID' end as payment_status "
+                + "FROM booking b INNER JOIN customer c ON b.customer_id = c.id INNER JOIN person p ON c.person_id = p.id "
+                + "WHERE status = 'CANCEL' ";
+
+  console.log("list Booking = ", mainQuery);
+  var cond = [];
+  var hasJoin = false;
+  for(var fld in req.body.keywords) {
+    var keyword = req.body.keywords[fld];
+    if (typeof keyword === 'undefined') {
+      continue;
+    }
+    keyword = keyword.trim();
+    if (keyword == '') {
+      continue;
+    }
+    if (typeof bookingFields[fld]==='undefined') {
+      continue;
+    }
+    var tmp = helper.genCond(bookingFields[fld], keyword, false);
+    if (tmp==='') {
+      continue;
+    }
+    cond.push(tmp);
+    if (fld=='booking_no' || fld=='customer_name' || fld=='pickup_place' || fld=='pickup_date' || fld=='type' ||
+        fld=='deliveried_date' || fld == 'booking_date' || fld == 'payment_status') {
+      hasJoin = true;
+    }
+  }
+  if (cond.length > 0) {
+    mainQuery += ' AND ' + cond.join(' AND ');
+    //console.log("mainQuery = ", mainQuery);
+  }
+
+  var getCount = function() {
+    var sql = "SELECT COUNT(*) cnt FROM booking WHERE status = status ";
+    if (hasJoin) {
+      sql = 'SELECT COUNT(*) AS cnt FROM (' + mainQuery + ') x';
+    } else if (cond.length > 0) {
+      sql += ' AND ' + cond.join(' AND ');
+    }
+    return db.query(sql, {}).then(function(rows) {
+      if (rows.length==0) {
+        $scope.totalRows = 0;
+      } else {
+        $scope.totalRows = rows[0].cnt;
+      }
+    });
+  }
+
+  var getRows = function() {
+    var sortBy = req.body.sortBy || 'b.booking_id';
+    var sortDir = req.body.sortDir || 'ASC';
+    var limit = req.body.limit || 500;
+    var page = req.body.page || 0;
+
+    $scope.opt = {
+      sortBy: sortBy,
+      sortDir: sortDir,
+      limit: limit,
+      page: page,
+      totalRows: 0,
+    };
+
+    //sortBy = 'r.`' + sortBy + '`';
+
+    var sql = mainQuery +
+      ' ORDER BY ' + sortBy + ' ' + sortDir +
+      ' LIMIT ' + (page * limit) + ', ' + limit;
+    //console.log("Maia sql = ", sql);
+    return db.queryArray(sql, {}).then(function(rows) {
+      $scope.rows = rows;
+    });
+  };
+
+
+  getRows().then(function() {
+      var rows = $scope.rows.d;  //console.log("$scope.rows.d = ", $scope.rows.d);
+      rows.unshift($scope.rows.f);  //console.log("$scope.rows.f = ", $scope.rows.f);
+      try {
+        var buffer = xlsx.build([{name: "ListInTransit_", data: rows}]);
+      } catch (e) {
+        console.log('ERROR=', e);
+      }
+      var id = helper.newUUID();
+      var fname = '/output/cancel_'+id+'.xlsx';
+      try {
+        fs.writeFileSync(path.normalize(__dirname + '/../../public'+fname), buffer);
+      } catch (e) {
+        console.log('ERROR2=', e);
+      }
+      res.send({
+        status:true,
+        file: fname
+      });
+  }).catch(function(e) {
+    res.send({
+      status: false,
+      error: e
+    });
+  });
+
+});

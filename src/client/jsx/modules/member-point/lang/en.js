@@ -4,7 +4,7 @@ module.exports = {
     title_en: 'Check Member Point',
   },
   text: {
-    search: 'Tax Id Card :'
+    search: 'Member Code:'
   },
   button: {
     search: 'Search',

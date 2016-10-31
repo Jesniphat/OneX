@@ -9,7 +9,11 @@ var helper      = require('../../lib/helper');
 router.use('/profile', require('./profile/profile'));
 
 router.post('/sessionInfo', [bodyParser.json()], function(req, res) {
-  console.log(req.session.data);
+  console.log("session data system = ", req.session.data);
+  if(!req.session.data){
+    console.log("Don't have session");
+    return;
+  }
   var data = req.session.data;
   data.sessionID = req.sessionID;
   res.send({
@@ -44,6 +48,11 @@ router.post('/ping', function(req, res) {
 });
 
 router.post('/signout', [bodyParser.json()], function(req, res) {
+  delete req.session.data;
+  res.send({status:true});
+});
+
+router.post('/signoutTransport', [bodyParser.json()], function(req, res) {
   delete req.session.data;
   res.send({status:true});
 });

@@ -13,7 +13,7 @@ const routeConfig = {
   getChildRoutes(location, cb) {
     require.ensure([], (require) => {
       cb(null, [
-        {path:':id', component: require('./shop-edit.jsx')}
+        {path:'shop_edit/:id', component: require('./shop-edit.jsx')}
       ])
     })
   }

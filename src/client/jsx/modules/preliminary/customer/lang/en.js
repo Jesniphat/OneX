@@ -28,7 +28,7 @@ module.exports = {
       productGroup:'กลุ่มสินค้า',
       product:'เพิ่มสินค้า'
     },
-    customer_code: 'Code',
+    customer_code: 'Username',
     type: 'Customer Type',
     fullname: 'Fullname',
     nation: 'Customer Type',
@@ -39,7 +39,7 @@ module.exports = {
     prod_group_description: 'รายละเอียดกลุ่มสินค้า',
     add_new_customer: {
       member_type: 'Member Type',
-      customer_code: 'Code',
+      customer_code: 'Username',
       tax_num: 'ID',
       member_code: 'Member Code',
       titel:'Title',
@@ -101,7 +101,8 @@ module.exports = {
       initial_tab:'Initial',
       default_addr_tab:'Default Address',
       billing_data:'Billing Name',
-      contract_name:'Contract Name'
+      contract_name:'Contract Name',
+      uploadDoc: 'Upload document'
     },
     inTable:{
       no:'No.',

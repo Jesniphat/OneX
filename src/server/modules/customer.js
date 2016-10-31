@@ -7,6 +7,7 @@ var fs           = require('fs');
 var conn        = require('../lib/db');
 var helper      = require('../lib/helper');
 var cookie      = require('react-cookie');
+var nodemailer  = require('nodemailer');
 
 var doRegister = function(req, res) {
   console.log("register");
@@ -15,7 +16,7 @@ var doRegister = function(req, res) {
   var $scope = {};
   $scope.address_id = [];
   //$scope.contact_id = [];
-  
+
   var checkValid = function(){
     var checkData = req.body.dataSaving;
     if(checkData.tax_num == '' || checkData.names == '' || checkData.last_name == '' || checkData.e_mail == '' || checkData.password == ''){
@@ -23,6 +24,19 @@ var doRegister = function(req, res) {
       console.log("Valid Data");
       throw 'Valid Data';
     }
+  }
+
+  var checkDuplicateUser = function(){
+    var sql = "SELECT * FROM person WHERE code = :user";
+    return db.query(sql, req.body.dataSaving).then(function(res) {
+      console.log("res = ", res);
+      if(res.length > 0){
+        console.log("Duplicate");
+        throw "Can't use this username."
+      } else {
+        $scope.newCode = req.body.dataSaving.user;
+      }
+    });
   }
 
   var selectLastcode = function(){
@@ -139,11 +153,47 @@ var doRegister = function(req, res) {
       return db.query(sql, req.body.dataSaving);
     }
 
+    var renderEmail = function(){
+        console.log("Sent Email");
+        var smtpTransport = nodemailer.createTransport('smtps://test.onex.nippon%40gmail.com:p@ssw0rd3@smtp.gmail.com');
+        // setup e-mail data with unicode symbols
+        var mailOptions = {
+            from: "One Transport <test.onex.nippon@gmail.com>", // sender address
+            to: req.body.dataSaving.e_mail, // list of receivers
+            subject: "Register Information. ", // Subject line
+            text: "Hello custome Your User is " + $scope.newCode + " Your password is " + req.body.dataSaving.password, // plaintext body
+            html: "",
+            attachments: []
+        }
+        // send mail with defined transport object
+        smtpTransport.sendMail(mailOptions, function(error, info){
+            if(error){
+                return console.log(error);
+            }
+            console.log('Message sent: ' + info.response);
+            // if you don't want to use this transport object anymore, uncomment following line
+            //smtpTransport.close(); // shut down the connection pool, no more messages
+        });
+    }
+
+    var insertDocumentName = function(){
+      // if(req.body.doc1Name == "" && req.body.doc2Name == "" && req.body.doc3Name == ""){
+      //   return true;
+      // }
+      var sql = "INSERT INTO customer_document (customer_id, document_name1, document_name2, document_name3, "
+              + "created_by, updated_by) VALUES (:customer_id, :doc1Name, :doc2Name, :doc3Name, '1', '1')";
+      console.log("sql insert doc = ", sql);
+      return db.query(sql, req.body.dataSaving).then(function(res){
+        $scope.docid = res.insertId
+      });
+    }
+
     var db = conn.connect();
     db.beginTransaction()
       .then(checkValid)
-      .then(selectLastcode)
-      .then(_GenCode)
+      .then(checkDuplicateUser)
+      // .then(selectLastcode)
+      // .then(_GenCode)
       .then(insertPerson)
       .then(insertCustomers)
       //.then(insertContactList)
@@ -154,6 +204,9 @@ var doRegister = function(req, res) {
       .then(selectDefultAddr)
       //.then(selectDefultBill)
       .then(updateAddBillDefault)
+      .then(insertDocumentName)
+      .then(renderEmail)
+      // .then(changeFileName)
       .then(function(){
         db.commit();
         res.send({
@@ -247,6 +300,90 @@ var doGetBillingListData = function(req, res){
   });
 }
 
+var doForgotPassword = function(req, res) {
+  var db = conn.connect();
+  var $scope = {};
+  $scope.email = req.body.email;
+
+  var getByEmail = function(){
+    var sql = "SELECT email, code, password FROM person WHERE email = :email ORDER BY ID LIMIT 1";
+    return db.query(sql, req.body).then(function(res) {
+      $scope.dataPassword = res;
+      if($scope.dataPassword.length == 0) {
+        throw "Don't have this email";
+      }
+    });
+  }
+
+  var renderEmail = function(){
+      console.log("Sent Email");
+      var smtpTransport = nodemailer.createTransport('smtps://test.onex.nippon%40gmail.com:p@ssw0rd3@smtp.gmail.com');
+      // setup e-mail data with unicode symbols
+      var mailOptions = {
+          from: "One Transport <test.onex.nippon@gmail.com>", // sender address
+          to: $scope.email, // list of receivers
+          subject: "Your Information. ", // Subject line
+          text: "Hello custome Your User is " + $scope.dataPassword[0].code + " Your password is " + $scope.dataPassword[0].password, // plaintext body
+          html: "",
+          attachments: []
+      }
+      // send mail with defined transport object
+      smtpTransport.sendMail(mailOptions, function(error, info){
+          if(error){
+              return console.log(error);
+          }
+          console.log('Message sent: ' + info.response);
+          // if you don't want to use this transport object anymore, uncomment following line
+          //smtpTransport.close(); // shut down the connection pool, no more messages
+      });
+  }
+
+  db.beginTransaction()
+  .then(getByEmail)
+  .then(renderEmail)
+  .then(function(){
+    res.send({
+      status:true,
+      data: {
+          email:$scope.dataPassword,
+      }
+    });
+  }).catch(function(e) {
+    console.log('rollback', e);
+      res.send({
+        status:false,
+        error:e
+      });
+  });
+}
+
+var doGetCompanyProfile = function(req, res) {
+  var db = conn.connect();
+  var $scope = {};
+
+  var getCompanyProfile = function(){
+    var sql = "SELECT * FROM company_profile order by id desc limit 1";
+    return db.query(sql, {}).then(function(res) {
+      $scope.company = res[0];
+      console.log("data = ", $scope.company);
+    });
+  }
+
+  db.beginTransaction()
+  .then(getCompanyProfile)
+  .then(function(){
+    res.send({
+      status:true,
+      data: $scope.company
+    });
+  }).catch(function(e) {
+    console.log('rollback', e);
+      res.send({
+        status:false,
+        error:e
+      });
+  });
+}
 
 router.post('/api', bodyParser.json(), function(req, res) {
   console.log('Customer Function Js')
@@ -263,6 +400,10 @@ router.post('/api', bodyParser.json(), function(req, res) {
     doGetContactListData(req, res);
   } else if (req.body.act=='getBillingListData'){
     doGetBillingListData(req, res);
+  } else if (req.body.act=='forgot'){
+    doForgotPassword(req, res);
+  } else if (req.body.act=='getCompanyProfile'){
+    doGetCompanyProfile(req, res);
   }
 });
 

@@ -159,7 +159,7 @@ var CustomerList = React.createClass({
         {name:'pickup_place', title:'transport.pickup_place'},//, width:'80px'
         {name:'pickup_date', title:'transport.pickup_date'},
         {name:'type', title:'transport.type'},
-        {name:'real_delivery_date', title:'transport.real_delivery_date'},
+        {name:'deliveried_date', title:'transport.deliveried_date'},
         {name:'booking_date', title:'transport.booking_date'},
         {name:'actions', type:'actions', width:(3*28+8)+'px', render:function(row) {
           var e = function() {
@@ -186,7 +186,9 @@ var CustomerList = React.createClass({
     return dataTable.map(function(row, index){
       return (
         <tr>
-            <td style={{borderBottom:"1px solid lightgray",borderRight:"1px solid lightgray"}}><span style={{lineHeight: "25px",paddingLeft: "3px"}}></span>{row.booking_name}</td>
+            <td style={{borderBottom:"1px solid lightgray",borderRight:"1px solid lightgray"}}>
+              <div style={{margin:"3px 0px 3px 0px"}} dangerouslySetInnerHTML={{__html:row.booking_name}}/>
+            </td>
             <td style={{textAlign:"right",borderBottom:"1px solid lightgray",borderRight:"1px solid lightgray"}}><span style={{lineHeight: "25px",paddingRight:"3px"}}>{helper.numberFormat(row.total_price,2)}</span></td>
             <td style={{textAlign:"right",borderBottom:"1px solid lightgray"}}><span style={{lineHeight: "25px",paddingRight:"3px"}}>{this.state.bookingList.currency}</span></td>
         </tr>
@@ -200,10 +202,11 @@ var CustomerList = React.createClass({
         <tr>
             <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{index+1}.</span></td>
             <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.barcode}</span></td>
+            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.status}</span></td>
             <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.pickup_date}</span></td>
-            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.real_delivery_date}</span></td>
-            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.real_delivery_date}</span></td>
-            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.accepted_date}</span></td>
+            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.accepted_origin_date}</span></td>
+            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.accepted_destination_date}</span></td>
+            <td style={{textAlign:"center"}}><span style={{lineHeight: "21px"}}>{row.deliveried_date}</span></td>
         </tr>
         )
     }.bind(this));
@@ -596,6 +599,7 @@ var CustomerList = React.createClass({
                                         <tr>
                                             <th scope="col">NO.</th>
                                             <th scope="col">Barcode</th>
+                                            <th scope="col">Status</th>
                                             <th scope="col">Pickup date</th>
                                             <th scope="col">Delivery date</th>
                                             <th scope="col">Receipt date</th>

@@ -39,7 +39,7 @@ module.exports = {
     user: 'ss_tcradio',
     pass: 'ss2015',
     debug: false,
-    connLimit: 100,
+    connLimit: 20,
     charset: 'utf8_unicode_ci'
   },
   oracledb: {

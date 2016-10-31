@@ -1,6 +1,6 @@
 var React = require('react');
 var tr = require('counterpart');
-
+var Dropzone      = require('react-dropzone');
 var system = require('../system/system');
 //var widgets = require('ss-widget');
 var toasterActions = system.toasterActions;
@@ -20,8 +20,22 @@ var FlexIcon = require('../../widgets/flex-icon.jsx');
 var FlexTab  = require('../../widgets/flex-tab.jsx');
 var FlexCheckbox  = require('../../widgets/flex-checkbox.jsx');
 var FlexRadioGroup  = require('../../widgets/flex-radio-group.jsx');
+var request = require('superagent');
+
+import Paper from 'material-ui/lib/paper';
+import RaisedButton from 'material-ui/lib/raised-button';
+import FontIcon from 'material-ui/lib/font-icon';
+import ActionAndroid from 'material-ui/lib/svg-icons/action/android';
 
 var $             = require('jquery');
+
+const styles = {
+  button: { margin: 6, width: 300, fontWeight: 'bold'},
+  title: { display:'block', paddingTop:15, fontWeight: 'bold', fontSize:16 },
+  dropzone: { width: '100%', border:'none' },
+  link: { margin: 0, fontSize:12, cursor:'pointer', textDecoration:'underline' },
+  depth: { height: 195, margin: '20px auto', textAlign: 'left' }
+};
 
 //var ReFlux = require('reflux');
 var resetData = {
@@ -109,17 +123,6 @@ var CustomerEdit = React.createClass({
   // ],
   getInitialState:function(){
     console.log(system);
-    // //console.log(this.context.router.getCurrentParams().id);
-    // //console.log(system.sessionStore.getSession().staff.id);
-    // if(this.context.router.getCurrentParams().id == 'unidentified' || this.context.router.getCurrentParams().id == null 
-    //   || this.context.router.getCurrentParams().id == 0 || this.context.router.getCurrentParams().id == '0'){
-    //   var person_id = '0';
-    //   var cTab = 'tab1';
-    // }else {
-    //   var person_id = this.context.router.getCurrentParams().id;
-    //   var cTab = 'tab3'
-    // }
-    //console.log(person_id);
     var person_id = '0';
     var cTab = 'tab1';
     return{
@@ -200,39 +203,58 @@ var CustomerEdit = React.createClass({
         flagBillingList:'N',
         flagBillingListId:'',
         flagContactList:'N',
-        flagContactListId:''
+        flagContactListId:'',
+        secondary: true,
+      	disabled1: false,
+        disabled2: false,
+        disabled3: false,
+      	filename1: "SELECT FILE",
+        filename2: "SELECT FILE",
+        filename3: "SELECT FILE",
+        files: [
+        	{}
+        ],
+        doc1Name:"",
+        doc2Name:"",
+        doc3Name:"",
+        docnamelabel1:"",
+        docnamelabel2:"",
+        docnamelabel3:""
     }
   },
   componentDidMount: function() {
     console.log("start");
     console.log("toast = ",toasterActions);
-    // actions.getCurrencyFromBase();
-    // //systemActions.setPageHeader(tr.translate('others.title.index'));
-    // //actions.getMemberType();
-    // if (this.state.edit_data.person_id != 0 || this.state.edit_data.person_id != '0'){
-    //   console.log("Get Data");
-    //   actions.getCustomerData(this.state.edit_data);
-    //   actions.getContactListData(this.state.edit_data);
-    //   actions.getBillingListData(this.state.edit_data);
-    // }
+    this.getCompanyProfile();
   },
 
-  // onGetMemberTypeDoneAction: function(data){
-  //   //console.log(data);
-  //   var list = data.memberType.map(function(row) {
-  //     return {
-  //         value: row.value,
-  //         text: row.text
-  //     }
-  //   });
-  //   console.log(list);
-  //   this.state.customerIdType.list = list;
-  //   console.log(this.state.customerIdType);
-  //   this.setState({
-  //     customerIdType: this.state.customerIdType
-  //   });
-  //   //console.log(this.state.memberTypeField);
-  // },
+  getCompanyProfile: function(){
+    $.ajax({
+      type:'post',
+      url:'/register/api',
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify({
+        act:'getCompanyProfile',
+        dataSaving:''
+      }),
+      dataType:'json',
+      success:function(res) {
+        console.log("res = ", res.data);
+        if (res.status===true) {
+          this.setState({
+            docnamelabel1:res.data.document1,
+            docnamelabel2:res.data.document2,
+            docnamelabel3:res.data.document3
+          });
+        } else {
+          alert("ERROR! can't get company profile");
+        }
+      }.bind(this),
+      error:function(e,m) {
+        console.log("error can't get company_profile");
+      }.bind(this)
+    });
+  },
 
   onGetCurrencyFromBaseDoneAction: function(data){
     console.log('ddttaa');
@@ -618,6 +640,21 @@ var CustomerEdit = React.createClass({
   },
 
   saveCustomer:function(){
+    var isValidEmail = function(str) {
+      var filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
+      return (filter.test(str));
+    }
+
+    if(!(isValidEmail(this.state.data.e_mail))){
+      console.log("Not email");
+      toasterActions.pop({
+        type:'warning',
+        message:'Email Not Match'
+      });
+      alert("Email Not Match");
+      return;
+    }
+
     console.log("It's X");
     if(this.state.data.password != this.state.data.repassword){
       console.log("Password Not Match");
@@ -625,10 +662,13 @@ var CustomerEdit = React.createClass({
         type:'warning',
         message:'Password Not Match'
       });
+      alert("Password Not Match");
       return;
     }
+
     var obj = {
       id:this.state.data.id,
+      user:this.state.data.customer_code,
       customer_id:this.state.data.customer_id,
       customer_code:this.state.data.customer_code,
       customerTypeFieldList:this.state.data.customerTypeFieldList,
@@ -663,7 +703,10 @@ var CustomerEdit = React.createClass({
       defaultAddrPhone:this.state.data.defaultAddrPhone,
       //memberTypeFieldList:this.state.data.memberTypeFieldList,
       billingListData:this.state.billingListData,
-      contactListData:this.state.contactListData
+      contactListData:this.state.contactListData,
+      doc1Name:this.state.doc1Name,
+      doc2Name:this.state.doc2Name,
+      doc3Name:this.state.doc3Name
     }
     console.log(this.state.edit_data);
     if (this.state.edit_data.person_id != 0 || this.state.edit_data.person_id != '0'){
@@ -690,6 +733,7 @@ var CustomerEdit = React.createClass({
             });
             console.log("Save data complete = ", res.data.user);
             alert("Register Complete your user is " + res.data.user);
+            window.location.href = '/signin-transport';
             toasterActions.pop({
               type:'success',
               message:'Save customer complete'
@@ -725,13 +769,119 @@ var CustomerEdit = React.createClass({
     //   message:'แก้ไขข้อมูลไม่สำเร็จ'
     // });
   },
+  onDropDoc1: function(files){
+    // console.log("path name = ",this.props.routes[3].path);
+    this.setState({
+      filename1: "Uploading... ["+files[0].name+"]",
+      disabled1: true
+    });
+    console.log("req = ", files[0]);
+    var req = {};
+    req = request.post('/onex/api/upload/doc');
+    req.attach("doc", files[0]);
+    req.end(this.uploadDone1);
+  },
+
+  uploadDone1: function(err,data){
+    console.log(err);
+    if(err){
+      return;
+    }
+    console.log(data);
+    if(data.body.status){
+      this.setState({
+        doc1Name: data.body.fileName,
+        filename1: "Uploaded"
+      });
+    }else {
+      toasterActions.pop({
+        type:'warning',
+        message:data.body.exMessage
+      });
+      this.setState({
+        filename1: "SELECT FILE",
+        disabled1: false
+      });
+    }
+  },
+
+  onDropDoc2: function(files){
+    // console.log("path name = ",this.props.routes[3].path);
+    this.setState({
+      filename2: "Uploading... ["+files[0].name+"]",
+      disabled2: true
+    });
+    console.log("req = ", files[0]);
+    var req = {};
+    req = request.post('/onex/api/upload/doc');
+    req.attach("doc", files[0]);
+    req.end(this.uploadDone2);
+  },
+
+  uploadDone2: function(err,data){
+    console.log(err);
+    if(err){
+      return;
+    }
+    console.log(data);
+    if(data.body.status){
+      this.setState({
+        doc2Name: data.body.fileName,
+        filename2: "Uploaded"
+      });
+    }else {
+      toasterActions.pop({
+        type:'warning',
+        message:data.body.exMessage
+      });
+      this.setState({
+        filename2: "SELECT FILE",
+        disabled2: false
+      });
+    }
+  },
+
+  onDropDoc3: function(files){
+    // console.log("path name = ",this.props.routes[3].path);
+    this.setState({
+      filename3: "Uploading... ["+files[0].name+"]",
+      disabled3: true
+    });
+    console.log("req = ", files[0]);
+    var req = {};
+    req = request.post('/onex/api/upload/doc');
+    req.attach("doc", files[0]);
+    req.end(this.uploadDone3);
+  },
+
+  uploadDone3: function(err,data){
+    console.log(err);
+    if(err){
+      return;
+    }
+    console.log(data);
+    if(data.body.status){
+      this.setState({
+        doc3Name: data.body.fileName,
+        filename3: "Uploaded"
+      });
+    }else {
+      toasterActions.pop({
+        type:'warning',
+        message:data.body.exMessage
+      });
+      this.setState({
+        filename3: "SELECT FILE",
+        disabled3: false
+      });
+    }
+  },
 
   render: function() {
     var fields = {
       customer_code:{
         id:'customer_code',
         label:'newcustomer.add_new_customer.customer_code',
-        readonly:true,
         maxLength:6
       },
       tax_num:{
@@ -1082,7 +1232,7 @@ var CustomerEdit = React.createClass({
         </div>
         <div className="content-body panelf">
           <div className="box9 flex flex-form">
-            <div className="panel2">
+            <div className="panel3">
                 <FlexTextInput
                   field={fields.customer_code}
                   data={this.state.data}
@@ -1092,22 +1242,28 @@ var CustomerEdit = React.createClass({
                   live={true}
                   />
             </div>
-            <div className="panel4">
-                <FlexDropdown
-                  field={this.state.customerIdType}
-                  data={this.state.data}
-                  onChange={this.handleChange}
-                />
+            <div style={this.state.edit_data.person_id != 0 || this.state.edit_data.person_id != '0' ? {display:'none'} : {display:'block'}}>
+              <div className="panel3">
+                  <FlexTextInput
+                    field={fields.password}
+                    data={this.state.data}
+                    onChange={this.handleChange}
+                    onKeyUp={this.onKeyUp}
+                    onKeyDown={this.onKeyDown}
+                    live={true}
+                    />
+              </div>
             </div>
-            <div className="panel4">
-                <FlexTextInput
-                  field={fields.tax_num}
-                  data={this.state.data}
-                  onChange={this.handleChange}
-                  onKeyUp={this.onKeyUp}
-                  onKeyDown={this.onKeyDown}
-                  live={true}
-                  />
+            <div style={this.state.edit_data.person_id != 0 || this.state.edit_data.person_id != '0' ? {display:'none'} : {display:'block'}}>
+              <div className="panel3">
+                  <FlexTextInput
+                    field={fields.repassword}
+                    data={this.state.data}
+                    onChange={this.handleChange}
+                    onEnter={this.onCodeEnter}
+                    onKeyUp={this.onKeyUp}
+                    />
+              </div>
             </div>
             <div className="panel3" style={{display:'none'}}>
                 <FlexDropdown
@@ -1152,17 +1308,15 @@ var CustomerEdit = React.createClass({
           </div>
           <div className="box9 flex flex-form">
             <div className="panel3">
-                <FlexTextInput
-                  field={fields.e_mail}
+                <FlexDropdown
+                  field={this.state.customerIdType}
                   data={this.state.data}
                   onChange={this.handleChange}
-                  onKeyUp={this.onKeyUp}
-                  />
+                />
             </div>
-          <div style={this.state.edit_data.person_id != 0 || this.state.edit_data.person_id != '0' ? {display:'none'} : {display:'block'}}>
             <div className="panel3">
                 <FlexTextInput
-                  field={fields.password}
+                  field={fields.tax_num}
                   data={this.state.data}
                   onChange={this.handleChange}
                   onKeyUp={this.onKeyUp}
@@ -1170,18 +1324,14 @@ var CustomerEdit = React.createClass({
                   live={true}
                   />
             </div>
-          </div>
-          <div style={this.state.edit_data.person_id != 0 || this.state.edit_data.person_id != '0' ? {display:'none'} : {display:'block'}}>
             <div className="panel3">
                 <FlexTextInput
-                  field={fields.repassword}
+                  field={fields.e_mail}
                   data={this.state.data}
                   onChange={this.handleChange}
-                  onEnter={this.onCodeEnter}
                   onKeyUp={this.onKeyUp}
                   />
             </div>
-          </div>
           </div>
           <div className="box9 flex flex-form">
               <div className="panel3" style={{display:'none'}}>
@@ -1251,9 +1401,48 @@ var CustomerEdit = React.createClass({
             <FlexTab list={listTab} selected={this.state.curTab} onClick={this.handleTabClick}/>
           </div>
             <div className="panel9" style={this.state.curTab=='tab1' ? {display:'block'} : {display:'none'}}>
-              <div className="box6 flex flex-form">
-
+              <div className="box3 flex flex-form">
+              <Dropzone ref="dropzone" disableClick={this.state.disabled1} multiple={false} onDrop={this.onDropDoc1} style={styles.dropzone}>
+                <div className="flex">
+                  <div className="panel6" style={{ textAlign: 'left' }}>
+                      <h4>{this.state.docnamelabel1}</h4>
+                  </div>
+                </div>
+                 <button className={"ui positive button"+(this.state.disabled1 ? ' disabled' : '')} style={styles.button}>
+                    <i className="icon upload"></i>
+                    {this.state.filename1}
+                </button>
+              </Dropzone>
               </div>
+              <br/>
+              <div className="box3 flex flex-form">
+              <Dropzone ref="dropzone" disableClick={this.state.disabled2} multiple={false} onDrop={this.onDropDoc2} style={styles.dropzone}>
+                <div className="flex">
+                  <div className="panel6" style={{ textAlign: 'left' }}>
+                      <h4>{this.state.docnamelabel2}</h4>
+                  </div>
+                </div>
+                 <button className={"ui positive button"+(this.state.disabled2 ? ' disabled' : '')} style={styles.button}>
+                    <i className="icon upload"></i>
+                    {this.state.filename2}
+                </button>
+              </Dropzone>
+              </div>
+              <br/>
+              <div className="box3 flex flex-form">
+              <Dropzone ref="dropzone" disableClick={this.state.disabled3} multiple={false} onDrop={this.onDropDoc3} style={styles.dropzone}>
+                <div className="flex">
+                  <div className="panel6" style={{ textAlign: 'left' }}>
+                      <h4>{this.state.docnamelabel3}</h4>
+                  </div>
+                </div>
+                 <button className={"ui positive button"+(this.state.disabled3 ? ' disabled' : '')} style={styles.button}>
+                    <i className="icon upload"></i>
+                    {this.state.filename3}
+                </button>
+              </Dropzone>
+              </div>
+              <br/>
             </div>
             <div className="panel9" style={this.state.curTab=='tab2' ? {display:'block'} : {display:'none'}}>
               <div className="box6 flex flex-form">
@@ -1351,14 +1540,14 @@ var CustomerEdit = React.createClass({
             </div>
             <div className="panel9" style={this.state.curTab=='tab4' ? {display:'block'} : {display:'none'}}>
               <div className="box9 flex flex-form">
-                
+
                   <div className="box4">
                     <FlexDisplayTable
                         fields={billingList}
                         data={this.state.billingListData}
                         displayRows={6}
                         />
-                  
+
                 </div>
                 <div>
                         <div className="box5 flex flex-form">
@@ -1601,7 +1790,7 @@ var CustomerEdit = React.createClass({
                                 />
                             </div>
                           </div>
-                        
+
                 </div>
               </div>
             </div>
@@ -1609,7 +1798,7 @@ var CustomerEdit = React.createClass({
       </div>
       </div>
       </div>
-  
+
       </div>
     );
   }

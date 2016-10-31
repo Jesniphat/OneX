@@ -276,6 +276,18 @@ var FlexGrid = React.createClass({
     }.bind(this));
   },
 
+  checked: function() {
+    var items = this.state.data;
+    var checkedRow = [];
+    items.forEach(function(row) {
+      if(this.state.checked[row[this.props.pk]]) {
+        // console.log('row', row);
+        checkedRow.push(row);
+      }
+    }.bind(this));
+    return checkedRow;
+  },
+
   onListDone: function(data, opt) {
     this.setState({
       data: data,

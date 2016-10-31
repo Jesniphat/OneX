@@ -239,7 +239,7 @@ NSReport.prototype.createDocument = function(reportDefinition, data) {
     contentHeight -= height2;
     // console.log('pageFooter.PF::', contentHeight, row);
   }
-  
+
 
   return this.pdfKitDoc;
 }
@@ -289,7 +289,7 @@ NSReport.prototype.renderSection = function (section, row, limit) {
 //    console.log('**************', maxHeight, limit);
     return -1;
   }
-  
+
   section.items.forEach(function(item, i) {
     if (this.isDebug) {
       if (item.type=='text' || item.type=='money' || item.type == 'number' || item.type=='image' || item.type=='circle' || item.type=='rectangle') {

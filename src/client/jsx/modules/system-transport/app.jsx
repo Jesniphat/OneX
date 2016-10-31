@@ -72,7 +72,8 @@ var App = React.createClass({
     Reflux.listenTo(systemActions.ping.done, 'onPingDoneAction'),
     Reflux.listenTo(infoPanelActions.show, 'onInfoPanelShowAction'),
     Reflux.listenTo(infoPanelActions.hide, 'onInfoPanelHideAction'),
-    Reflux.listenTo(sessionActions.load.done, 'onSessionLoadDoneAction')
+    Reflux.listenTo(sessionActions.load.done, 'onSessionLoadDoneAction'),
+    Reflux.listenTo(systemActions.signoutTransport.done, 'onSignoutTransportDoneAction')
    ],
 
   getInitialState: function() {
@@ -102,7 +103,7 @@ var App = React.createClass({
   },
 
   onSessionLoadDoneAction: function(session) {
-    console.log("onSessionLoadDoneAction = ",session);
+    console.log("onSessionLoadDoneAction jessss = ",session);
     this.setState({
       sessionID: session.sessionID,
       sessionReady: true
@@ -117,6 +118,15 @@ var App = React.createClass({
     this.setState({
       masterReady: true
     });
+  },
+
+  signOut: function() {
+    console.log("singOut");
+    systemActions.signoutTransport();
+  },
+
+  onSignoutTransportDoneAction: function() {
+    window.location.href = '/signin-transport';
   },
 
   onRequestSignOutAction: function() {
@@ -167,13 +177,13 @@ var App = React.createClass({
   clickLink: function() {
     console.log("ClickLink");
   },
-  
+
 //   handleChangeSingle: function(event, value){
 //     this.setState({
 //       valueSingle: value,
 //     });
 //   },
-//   
+//
   handleOpen: function() {
     this.setState({open: true});
   },
@@ -182,14 +192,15 @@ var App = React.createClass({
     this.setState({open: false});
   },
 
-  handleChangeMultiple: function(event, value){
-    console.log("value : ", value);
+  handleChangeMultiple: function(value, event){
+    console.log("value = ", value);
+    console.log("event = ", event);
     if(value == '1'){
-        window.location.href='/booking-transport/#/transport/home';
+        window.location.href='/booking-transport/#/booking-transport/home';
     }else if(value == '2'){
-        window.location.href='/booking-transport/#/transport/booking';
+        window.location.href='/booking-transport/#/booking-transport/booking/booking_new/0';
     }else if(value == '3'){
-        window.location.href='/booking-transport/#/transport/customer';
+        window.location.href='/booking-transport/#/booking-transport/customer';
     }
     this.setState({
       valueSingle: value,
@@ -207,7 +218,7 @@ var App = React.createClass({
   //     }
   //   });
   // },
-  
+
         // <div className="onex-sidebar" style={{'height':'620px'}}>
         //   <div id='cssmenu'>
         //     <ul>
@@ -229,7 +240,7 @@ var App = React.createClass({
         //     </ul>
         //   </div>
         // </div>
-        
+
   render: function() {
 
     var actions = [
@@ -251,18 +262,17 @@ var App = React.createClass({
           <div className="onex-top-bar-left" style={{marginLeft:'150px'}}>
             <IconMenu
             iconButtonElement={<IconButton><ContentFilter /></IconButton>}
-            onChange={this.handleChangeMultiple}
             value={this.state.valueSingle}
             >
-                <MenuItem value="1" primaryText="Home" />
-                <MenuItem value="2" primaryText="Booking" />
-                <MenuItem value="3" primaryText="Edit Profile" />
+                <MenuItem value="1" primaryText="Home" onClick={this.handleChangeMultiple.bind(this, "1")}/>
+                <MenuItem value="2" primaryText="Booking" onClick={this.handleChangeMultiple.bind(this, "2")}/>
+                <MenuItem value="3" primaryText="Edit Profile" onClick={this.handleChangeMultiple.bind(this, "3")}/>
             </IconMenu>
           </div>
 
           <div className="top-bar-right">
             <ul className="menu">
-              <li><div className="space">. </div></li>
+              <li><div className="space" style={{paddingTop:'16px',paddingRight:'39px'}}><a href="#" onClick={this.signOut}><u>Sign out</u></a></div></li>
             </ul>
           </div>
         </div>

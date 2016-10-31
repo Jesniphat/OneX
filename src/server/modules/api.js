@@ -29,7 +29,17 @@ var checkSessionApi = function(req, res, next) {
 router.get('/', function(req, res) {
   cookie.plugToRequest(req, res);
   cookie.save('SS_LANG', process.env['SS_LANG']);
-  
+  if(!req.session.data){
+    if(req._parsedOriginalUrl.path == '/booking-transport/'){
+      console.log("req paht = ",req._parsedOriginalUrl.path);
+      res.redirect('/signin-transport/' + req.sessionID + "#");
+      return;
+    } else if (req._parsedOriginalUrl.path == '/onex/') {
+      console.log("req paht = ",req._parsedOriginalUrl.path);
+      res.redirect('/signin/' + req.sessionID + "#");
+      return;
+    }
+  }
   fs.readFile(path.resolve(__dirname, '../views/index.html'), 'utf8', function(err, data) {
     if (err) {
       res.send({status:false, error:err})
@@ -41,8 +51,8 @@ router.get('/', function(req, res) {
     var scripts = [];
     switch(req.originalUrl.replace(/\//ig, ''))
     {
-      case 'booking-transport': 
-        title = 'One-X &reg;'; 
+      case 'booking-transport':
+        title = 'One-X &reg;';
         css = [
           '/css/foundation.min.css',
           '/css/app.css',
@@ -59,7 +69,7 @@ router.get('/', function(req, res) {
           '/js/app.js',
         ]
         break;
-      case 'securestock': 
+      case 'onex':
         title = 'Secure Stock &reg;';
         css = [
           '/semantic/semantic.min.css',
@@ -119,3 +129,4 @@ router.use('/api/member', require('./member/search'));
 router.use('/ui/customer', require('./ui/customer'));
 router.use('/ui/staff', require('./ui/staff'));
 module.exports = router;
+// t

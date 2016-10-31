@@ -13,8 +13,8 @@ var TopPanel = React.createClass({
   render: function() {
     return (
       <div id="top-panel">
-        <div className="logo" style={{ fontSize: '26px', lineHeight: '37px', padding: '0px 68px 0px 20px' }}>
-          <i>Secure<b>Stock</b></i><sup style={{ fontSize: 16 }}>&trade;</sup>
+        <div className="logo" style={{ fontSize: '26px', lineHeight: '37px', padding: '0px 68px 0px 29px' }}>
+          <i><b>One</b>Express</i><sup style={{ fontSize: 16 }}>&trade;</sup>
         </div>
         <ModulePanel/>
         <div id="system-tray-panel">
